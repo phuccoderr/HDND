@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Menu, Moon, Sun } from "lucide-react";
 import { useTheme } from "./theme-provider.template";
-import { useSidebar } from "@/components/ui/sidebar";
+import { useSidebar } from "@/components/animate-ui/components/radix/sidebar";
 
 const Header = () => {
   const { toggleSidebar } = useSidebar();

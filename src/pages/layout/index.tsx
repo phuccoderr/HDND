@@ -1,12 +1,7 @@
-import Container from "../../templates/container.template";
-import HeaderLayout from "../../templates/header.template";
+import LayoutTemplate from "../../templates/layout.template";
 
 const Layout = () => {
-  return (
-    <Container>
-      <HeaderLayout></HeaderLayout>
-    </Container>
-  );
+  return <LayoutTemplate />;
 };
 
 export default Layout;

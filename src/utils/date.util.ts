@@ -31,6 +31,7 @@ export class DateUtil {
         slots.push(`${formattedHour}:${formattedMinute}`);
       }
     }
+
     return slots;
   };
 }
