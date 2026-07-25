@@ -46,6 +46,21 @@
   --radius-4xl: calc(var(--radius) * 2.6);
   --font-heading: var(--font-sans);
   --font-sans: "Geist Variable", sans-serif;
+
+  --color-blue-bg: var(--blue-bg);
+  --color-blue-fg: var(--blue-fg);
+
+  --color-green-bg: var(--green-bg);
+  --color-green-fg: var(--green-fg);
+
+  --color-amber-bg: var(--amber-bg);
+  --color-amber-fg: var(--amber-fg);
+
+  --color-rose-bg: var(--rose-bg);
+  --color-rose-fg: var(--rose-fg);
+
+  --color-purple-bg: var(--purple-bg);
+  --color-purple-fg: var(--purple-fg);
 }
 
 :root {
@@ -60,7 +75,7 @@
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
+  --muted: oklch(0.97 0 0); /* Màu mờ, dùng cho text phụ hoặc nền phụ */
   --muted-foreground: oklch(0.556 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
@@ -81,6 +96,21 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  --blue-bg: oklch(95% 0.03 243.15);
+  --blue-fg: oklch(45% 0.14 243.15);
+
+  --green-bg: oklch(96% 0.04 142);
+  --green-fg: oklch(43% 0.12 142);
+
+  --amber-bg: oklch(96% 0.04 70);
+  --amber-fg: oklch(47% 0.13 70);
+
+  --rose-bg: oklch(95% 0.04 15);
+  --rose-fg: oklch(45% 0.14 15);
+
+  --purple-bg: oklch(95% 0.04 295);
+  --purple-fg: oklch(45% 0.14 295);
 }
 
 .dark {
@@ -130,7 +160,46 @@
   }
 }
 
-.fc-theme-standard th {
+/* Full calendar */
+@layer base {
+  .fc-scrollgrid {
+    @apply border-t-0! border-l-0!;
+  }
+
+  /* Loại bỏ đường gạch */
+  .fc .fc-timegrid-slot-minor {
+    @apply border-t-0!;
+  }
+  .fc-direction-ltr .fc-timegrid-slot-label-frame {
+    @apply text-center!;
+  }
+  /* Border ngoài full calendar */
+  .fc-theme-standard td,
+  .fc-theme-standard th {
+    @apply border-border!;
+  }
+
+  /* Bỏ separator dưới all day */
+  .fc-timegrid-divider,
+  .fc-cell-shaded {
+    @apply hidden;
+  }
+
+  /* Background Header thứ */
+  .fc-col-header {
+    @apply bg-background;
+  }
+
+  /* Màu nằm ngang Accent cho slot all đây */
+  .fc .fc-daygrid-day.fc-day-today {
+    @apply bg-accent!;
+  }
+  .fc .fc-timegrid-axis-frame {
+    @apply bg-accent!;
+  }
+}
+
+/* .fc-theme-standard th {
   border-width: 0 0 1px 0;
 }
 
@@ -138,9 +207,7 @@
   border: none !important;
 }
 
-.fc-direction-ltr .fc-timegrid-slot-label-frame {
-  text-align: center;
-}
+
 
 .fc .fc-timegrid-slot-minor {
   border-top-style: none;
@@ -159,18 +226,20 @@ body.is-dragging-event .fc-timegrid-slot {
 .fc-timegrid-divider,
 .fc-cell-shaded {
   display: none;
-}
+} */
 
 /* Bỏ màu nền của ngày hôm nay ở tất cả các chế độ xem (Month, Week, Day) */
-.fc .fc-day-today {
-  background-color: transparent !important;
+/* .fc .fc-day-today {
+  background-color: transparent;
 }
 
-.fc .fc-daygrid-day.fc-day-today {
-  background-color: var(--accent) !important;
+.fc-timegrid-event-harness-inset .fc-timegrid-event,
+.fc-timegrid-event.fc-event-mirror,
+.fc-timegrid-more-link {
+  box-shadow: none;
 }
 
 .fc-daygrid-dot-event.fc-event-mirror,
 .fc-daygrid-dot-event:hover {
   background: transparent;
-}
+} */

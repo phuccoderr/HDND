@@ -181,7 +181,10 @@ const UserPage = () => {
       />
       <CUEmployee
         open={isOpen}
-        onOpenChange={setIsOpen}
+        onOpenChange={(open) => {
+          setIsOpen(open);
+          setEditingEmployee(null);
+        }}
         editingEmployee={editingEmployee}
       />
       <AlertDialog open={isOpenDelete} onOpenChange={setIsOpenDelete}>

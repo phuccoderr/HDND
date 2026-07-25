@@ -25,10 +25,14 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon" className="bg-muted">
       <SidebarHeader className="flex flex-row gap-2 items-center">
-        <img src={bo_cong_an_jpg} alt="Photo" className="h-8 w-8  rounded-lg" />
+        <img
+          src={bo_cong_an_jpg}
+          alt="Photo"
+          className="h-10 w-12  rounded-lg"
+        />
         <div className="grid flex-1 text-left text-sm leading-tight">
-          <span className="truncate font-semibold">Nguyen Thái Bảo</span>
-          <span className="truncate text-xs">Đào Quốc Trung</span>
+          <span className="truncate font-semibold">Hội Đồng Nhân Dân</span>
+          <span className="truncate text-xs">PK02 Mục Tiêu</span>
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -50,6 +54,13 @@ export function AppSidebar() {
                       <SidebarMenuSubButton asChild>
                         <Link to={"dashboard"}>
                           <span>Tổng hợp</span>
+                        </Link>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton asChild>
+                        <Link to={"works"}>
+                          <span>Ca trực</span>
                         </Link>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>

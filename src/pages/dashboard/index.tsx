@@ -16,6 +16,7 @@ import type {
   EventContentArg,
   EventDropArg,
   EventInput,
+  EventMountArg,
   SlotLabelContentArg,
 } from "@fullcalendar/core/index.js";
 import {
@@ -231,11 +232,14 @@ const DashboardPage = () => {
         eventDrop={handleEventDrop} // Hàm chạy khi kéo thả xong
         eventResize={handleEventResize} // Hàm chạy khi kéo giãn thời gian xong
         longPressDelay={100}
+        dayCellDidMount={(info) => {
+          if (info.isToday) {
+            info.el.classList.add("bg-transparent!");
+          }
+        }}
         allDayContent={(arg: AllDayContentArg) => {
           return (
-            <span className="text-xs text-muted-foreground bg-accent">
-              {arg.text}
-            </span>
+            <span className="text-xs text-muted-foreground">{arg.text}</span>
           );
         }}
         dayHeaderContent={(arg: DayHeaderContentArg) => {
@@ -243,12 +247,9 @@ const DashboardPage = () => {
           const isToday = arg.isToday;
 
           return (
-            <div
-              className="border-none text-center flex gap-1"
-              style={{ border: "none" }}
-            >
+            <div className="text-center flex gap-1">
               <span
-                className={`text-xs border-none ${!isToday && "text-muted-foreground"}`}
+                className={`text-xs ${!isToday && "text-muted-foreground"}`}
               >
                 {arg.text.split(" ")[0]} {arg.date.getDate()}
               </span>
@@ -257,13 +258,19 @@ const DashboardPage = () => {
         }}
         slotLabelContent={(arg: SlotLabelContentArg) => {
           return (
-            <div className="text-xs text-center text-muted-foreground">
-              {arg.text}
-            </div>
+            <span className="text-xs text-muted-foreground ">{arg.text}</span>
           );
         }}
         eventBackgroundColor="transparent"
         eventBorderColor="transparent"
+        eventDidMount={(arg: EventMountArg) => {
+          const colorKey = arg.event.extendedProps?.color;
+          const style = scheduleColorMap[colorKey] ?? scheduleColorMap.blue;
+          if (style) {
+            arg.el.style.backgroundColor = style.bgColor;
+          }
+          arg.el.classList.add("shadow-none!");
+        }}
         eventContent={(arg: EventContentArg) => {
           const viewType = arg.view.type;
           const isAllDay = arg.event.allDay;
@@ -272,7 +279,7 @@ const DashboardPage = () => {
           return (
             <div
               className={`relative h-full overflow-hidden flex flex-col gap-1 text-xs p-1 rounded-sm ${viewType == "dayGridMonth" && "w-full"}`}
-              style={{ backgroundColor: style.bgColor, color: style.textColor }}
+              style={{ color: style.textColor }}
             >
               <span>{arg.event.title}</span>
               <span className="opacity-60 flex items-center gap-1">

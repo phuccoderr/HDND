@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import Layout from "@/templates/layout.template";
 import DashboardPage from "@/pages/dashboard";
 import UserPage from "@/pages/users";
+import WorkPage from "@/pages/work-space";
 
 const router = createBrowserRouter([
   // Public
@@ -17,6 +18,10 @@ const router = createBrowserRouter([
       {
         element: <UserPage />,
         path: "/users",
+      },
+      {
+        element: <WorkPage />,
+        path: "/works",
       },
     ],
   },

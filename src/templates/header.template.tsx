@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Menu, Moon, Sun } from "lucide-react";
+import { Menu, Moon, Sun, UserKey } from "lucide-react";
 import { useTheme } from "./theme-provider.template";
 import { useSidebar } from "@/components/animate-ui/components/radix/sidebar";
 
@@ -13,11 +13,17 @@ const Header = () => {
   };
 
   return (
-    <div className="sticky top-0 z-10">
+    <div className="sticky top-0 z-10 border-b">
       <div className="flex justify-between p-2 items-center">
-        <Button onClick={toggleSidebar} variant="outline" size="icon">
-          <Menu />
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={toggleSidebar} variant="outline" size="icon">
+            <Menu />
+          </Button>
+          <div className="flex flex-col text-xs">
+            <span>Chỉ huy: Nguyễn Thái bảo</span>
+            <span>Trực ban: Đào Quốc Trung</span>
+          </div>
+        </div>
         {/* Theme */}
         <Button onClick={toggleTheme} variant="outline" size="icon">
           <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
