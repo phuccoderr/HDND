@@ -1,19 +1,5 @@
-import { type Employee, useEmployeesQuery } from "@/apis/employee.api";
-import { SelectFieldWork } from "./components/select-field-work.component";
+import { useEmployeesQuery } from "@/apis/employee.api";
 import { useEffect, useMemo, useState } from "react";
-import ComboboxFieldWork from "./components/combobox-field-work.component";
-import { Moon, Sun } from "lucide-react";
-import {
-  endMinutesAdjusted,
-  isDayStart,
-  nextId,
-  nightSortKey,
-  ShiftColumn,
-  timeToMinutes,
-  type Period,
-  type Shift,
-} from "./components/shift-column.component";
-import DndItems from "./components/dnd-items.component";
 import {
   getStoredRoom1,
   getStoredRoom3,
@@ -23,24 +9,126 @@ import {
   setStoredRoom3,
   setStoredToilet,
 } from "@/stores/phong.store";
-import { Button } from "@/components/ui/button";
+import {
+  type Period,
+  type Shift,
+  endMinutesAdjusted,
+  isDayStart,
+  nextId,
+  nightSortKey,
+  timeToMinutes,
+} from "./components/shift-column.component";
+import WorkPageHeader from "./components/work-page-header.component";
+import WorkAssignments from "./components/work-page-assignments.component";
+import WorkSchedulePanel from "./components/work-page-schedule-panel.component";
+import WorkCleaningPanel from "./components/work-page-cleaning.component";
+import { type WorkFormData, type WorkMode } from "./components/work-page.types";
+import { useStoreButtonHeader } from "@/stores/work-space.store";
 
 const WorkPage = () => {
   const { data: employees } = useEmployeesQuery();
-  const [empCommand, setEmpCommand] = useState("");
-  const [empDuty, setEmpDuy] = useState("");
-  const [empOnLeave, setEmpOnLeave] = useState<Employee[] | []>([]);
+  const { setOpen, registerSaveAction, unregisterSaveAction } =
+    useStoreButtonHeader();
+  const workMode: WorkMode = employees !== undefined ? "edit" : "create";
 
-  const [empRoom1, setEmpRoom1] = useState(() => getStoredRoom1());
-  const [empRoom3, setEmpRoom3] = useState(() => getStoredRoom3());
-  const [empToilet, setEmpToilet] = useState(() => getStoredToilet());
+  const [formState, setFormState] = useState<WorkFormData>(() => ({
+    empCommand: "",
+    empDuty: "",
+    empOnLeave: [],
+    empRoom1: getStoredRoom1(),
+    empRoom3: getStoredRoom3(),
+    empToilet: getStoredToilet(),
+    dayShifts: [
+      {
+        emps: [],
+        start: "06:00",
+        end: "08:00",
+        id: "1",
+      },
+      {
+        emps: [],
+        start: "08:00",
+        end: "10:00",
+        id: "2",
+      },
+      {
+        emps: [],
+        start: "10:00",
+        end: "12:00",
+        id: "3",
+      },
+      {
+        emps: [],
+        start: "12:00",
+        end: "14:00",
+        id: "4",
+      },
+      {
+        emps: [],
+        start: "14:00",
+        end: "16:00",
+        id: "5",
+      },
+      {
+        emps: [],
+        start: "16:00",
+        end: "18:00",
+        id: "6",
+      },
+    ],
+    nightShifts: [
+      {
+        emps: [],
+        start: "18:00",
+        end: "20:00",
+        id: "1",
+      },
+      {
+        emps: [],
+        start: "20:00",
+        end: "22:00",
+        id: "2",
+      },
+      {
+        emps: [],
+        start: "22:00",
+        end: "24:00",
+        id: "3",
+      },
+      {
+        emps: [],
+        start: "24:00",
+        end: "02:00",
+        id: "4",
+      },
+      {
+        emps: [],
+        start: "02:00",
+        end: "04:00",
+        id: "5",
+      },
+      {
+        emps: [],
+        start: "04:00",
+        end: "06:00",
+        id: "6",
+      },
+    ],
+  }));
+
+  const updateField = <K extends keyof WorkFormData>(
+    key: K,
+    value: WorkFormData[K],
+  ) => {
+    setFormState((prev) => ({ ...prev, [key]: value }));
+  };
 
   const handleSetRoom1 = (roomId: string) => {
     const member = getStoredRooms().phong1.find(
       (emp) => emp.id === Number(roomId),
     );
     if (member) {
-      setEmpRoom1(member);
+      updateField("empRoom1", member);
       setStoredRoom1(member);
     }
   };
@@ -50,7 +138,7 @@ const WorkPage = () => {
       (emp) => emp.id === Number(roomId),
     );
     if (member) {
-      setEmpRoom3(member);
+      updateField("empRoom3", member);
       setStoredRoom3(member);
     }
   };
@@ -60,97 +148,111 @@ const WorkPage = () => {
       (emp) => emp.id === Number(roomId),
     );
     if (member) {
-      setEmpToilet(member);
+      updateField("empToilet", member);
       setStoredToilet(member);
     }
   };
 
-  const empsRoom3Options = getStoredRooms().phong3.map((emp) => ({
+  const storedRooms = useMemo(() => getStoredRooms(), []);
+
+  const empsRoom3Options = storedRooms.phong3.map((emp) => ({
     label: emp.full_name,
     value: String(emp.id),
   }));
 
-  const empsRoom1Options = getStoredRooms().phong1.map((emp) => ({
+  const empsRoom1Options = storedRooms.phong1.map((emp) => ({
     label: emp.full_name,
     value: String(emp.id),
   }));
 
   const employeeCommandItems = useMemo(() => {
     if (!employees) return [];
-
     return employees
       .filter((emp) => emp.type === "COMMAND")
-      .map((emp) => ({
-        label: emp.full_name,
-        value: String(emp.id),
-      }));
+      .map((emp) => ({ label: emp.full_name, value: String(emp.id) }));
   }, [employees]);
 
   const employeeDutyItems = useMemo(() => {
     if (!employees) return [];
-
     return employees
       .filter((emp) => emp.type === "DUTY")
-      .map((emp) => ({
-        label: emp.full_name,
-        value: String(emp.id),
-      }));
+      .map((emp) => ({ label: emp.full_name, value: String(emp.id) }));
   }, [employees]);
 
   useEffect(() => {
-    if (employees && employees.length > 0) {
-      setEmpCommand(String(employees[0].id));
-    }
-  }, [employees]);
+    if (!employees) return;
 
-  const [dayShifts, setDayShifts] = useState<Shift[]>([]);
-  const [nightShifts, setNightShifts] = useState<Shift[]>([]);
+    setFormState((prev) => {
+      const command = prev.empCommand || employeeCommandItems[0]?.value || "";
+      const duty = prev.empDuty || employeeDutyItems[0]?.value || "";
+      if (command === prev.empCommand && duty === prev.empDuty) {
+        return prev;
+      }
+      return { ...prev, empCommand: command, empDuty: duty };
+    });
+  }, [employees, employeeCommandItems, employeeDutyItems]);
 
   const updateDayShift = (updated: Shift) =>
-    setDayShifts((prev) =>
-      prev.map((s) => (s.id === updated.id ? updated : s)),
-    );
+    setFormState((prev) => ({
+      ...prev,
+      dayShifts: prev.dayShifts.map((shift) =>
+        shift.id === updated.id ? updated : shift,
+      ),
+    }));
 
   const removeDayShift = (id: string) =>
-    setDayShifts((prev) => prev.filter((s) => s.id !== id));
+    setFormState((prev) => ({
+      ...prev,
+      dayShifts: prev.dayShifts.filter((shift) => shift.id !== id),
+    }));
 
   const updateNightShift = (updated: Shift) =>
-    setNightShifts((prev) =>
-      prev.map((s) => (s.id === updated.id ? updated : s)),
-    );
+    setFormState((prev) => ({
+      ...prev,
+      nightShifts: prev.nightShifts.map((shift) =>
+        shift.id === updated.id ? updated : shift,
+      ),
+    }));
 
   const removeNightShift = (id: string) =>
-    setNightShifts((prev) => prev.filter((s) => s.id !== id));
+    setFormState((prev) => ({
+      ...prev,
+      nightShifts: prev.nightShifts.filter((shift) => shift.id !== id),
+    }));
 
   const addShift = (column: Period) => {
-    if (column === "day") {
-      setDayShifts((prev) => [
-        ...prev,
-        { id: nextId(), emps: [], start: "06:00", end: "08:00" },
-      ]);
-    }
-
-    if (column === "night") {
-      setNightShifts((prev) => [
-        ...prev,
-        { id: nextId(), emps: [], start: "18:00", end: "20:00" },
-      ]);
-    }
+    setFormState((prev) => ({
+      ...prev,
+      dayShifts:
+        column === "day"
+          ? [
+              ...prev.dayShifts,
+              { id: nextId(), emps: [], start: "06:00", end: "08:00" },
+            ]
+          : prev.dayShifts,
+      nightShifts:
+        column === "night"
+          ? [
+              ...prev.nightShifts,
+              { id: nextId(), emps: [], start: "18:00", end: "20:00" },
+            ]
+          : prev.nightShifts,
+    }));
   };
 
   const sortDayShifts = useMemo(() => {
-    return dayShifts
+    return [...formState.dayShifts]
       .filter((s) => isDayStart(s.start))
       .sort((a, b) => timeToMinutes(a.start) - timeToMinutes(b.start));
-  }, [dayShifts]);
+  }, [formState.dayShifts]);
 
   const sortNightShifts = useMemo(() => {
-    return nightShifts
+    return [...formState.nightShifts]
       .filter((s) => !isDayStart(s.start))
       .sort((a, b) => nightSortKey(a.start) - nightSortKey(b.start));
-  }, [nightShifts]);
+  }, [formState.nightShifts]);
 
-  const { overlapIds } = useMemo(() => {
+  const overlapIds = useMemo(() => {
     const overlaps = new Set<string>();
     const checkOverlap = (list: Shift[], keyFn: (start: string) => number) => {
       for (let i = 1; i < list.length; i++) {
@@ -167,115 +269,66 @@ const WorkPage = () => {
     };
     checkOverlap(sortDayShifts, timeToMinutes);
     checkOverlap(sortNightShifts, nightSortKey);
+    return overlaps;
+  }, [sortDayShifts, sortNightShifts]);
 
-    return { overlapIds: overlaps };
-  }, [dayShifts, nightShifts]);
+  const handleSave = () => {
+    console.log({
+      mode: workMode,
+      data: formState,
+    });
+  };
+
+  useEffect(() => {
+    registerSaveAction(handleSave);
+
+    return () => {
+      unregisterSaveAction();
+    };
+  }, []);
 
   return (
-    <div className="space-y-4 p-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-semibold">Quản lý ca</h1>
-          <p className="text-sm text-muted-foreground">
-            Thêm, sửa và xóa ca thông tin nhân viên trong hệ thống.
-          </p>
-        </div>
-        <Button>Save</Button>
-      </div>
-      <div className="border rounded-sm flex flex-wrap gap-2">
-        <div className="flex flex-col flex-1 gap-1 text-sm p-2">
-          <div className="flex gap-1 items-center">
-            <span>Trực chỉ huy:</span>
-            <SelectFieldWork
-              onValueChange={(value) => {
-                setEmpCommand(value);
-              }}
-              items={employeeCommandItems ?? []}
-              value={empCommand}
-            />
-          </div>
-          <div className="flex gap-1 items-center">
-            <span>Trực ban:</span>
-            <SelectFieldWork
-              onValueChange={(value) => {
-                setEmpDuy(value);
-              }}
-              items={employeeDutyItems ?? []}
-              value={empDuty}
-            />
-          </div>
-          <span>Trực bếp: Bùi Quốc Dũng - Dương Nhật Huy</span>
-          <span>Trực ngày: 21/7</span>
-          <ShiftColumn
-            title="Ca ngày"
-            rangeLabel="06:00 – 18:00"
-            icon={<Sun className="size-3.5 text-amber-600" />}
-            accent={{ headerBg: "bg-amber-50", iconBg: "bg-amber-100" }}
-            shifts={sortDayShifts}
-            overlapIds={overlapIds}
-            onChange={updateDayShift}
-            onRemove={removeDayShift}
-            onAdd={() => addShift("day")}
+    <div className="space-y-4 p-4 text-[12px]">
+      <WorkPageHeader mode={workMode} onSave={handleSave} />
+
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1fr)]">
+        <div className="space-y-4">
+          <WorkAssignments
+            empCommand={formState.empCommand}
+            empDuty={formState.empDuty}
+            empOnLeave={formState.empOnLeave}
+            employeeCommandItems={employeeCommandItems}
+            employeeDutyItems={employeeDutyItems}
+            onCommandChange={(value) => updateField("empCommand", value)}
+            onDutyChange={(value) => updateField("empDuty", value)}
+            onOnLeaveChange={(value) => updateField("empOnLeave", value)}
+            employees={employees}
           />
-        </div>
-        <div className="flex flex-col gap-1 flex-1 text-sm p-2">
-          <div className="flex gap-2 items-center">
-            <span>Nghỉ phép:</span>
-            <ComboboxFieldWork
-              options={employees ?? []}
-              value={empOnLeave}
-              onValueChange={(emps) => setEmpOnLeave(emps)}
-              optionLabel={(emp) => emp.full_name}
-            />
-          </div>
-          <span>Trực chiến: 2/3</span>
-          <span>Công tác:</span>
-          <span>Trực đêm: 21/7</span>
-          <ShiftColumn
-            title="Ca đêm"
-            rangeLabel="18:00 – 06:00"
-            icon={<Moon className="size-3.5 text-indigo-600" />}
-            accent={{ headerBg: "bg-indigo-50", iconBg: "bg-indigo-100" }}
-            shifts={sortNightShifts}
+
+          <WorkSchedulePanel
+            employees={employees}
+            dayShifts={sortDayShifts}
+            nightShifts={sortNightShifts}
             overlapIds={overlapIds}
-            onChange={updateNightShift}
-            onRemove={removeNightShift}
-            onAdd={() => addShift("night")}
+            onUpdateDayShift={updateDayShift}
+            onRemoveDayShift={removeDayShift}
+            onAddDayShift={() => addShift("day")}
+            onUpdateNightShift={updateNightShift}
+            onRemoveNightShift={removeNightShift}
+            onAddNightShift={() => addShift("night")}
           />
         </div>
 
-        <div className="flex flex-col gap-2 text-sm p-2">
-          <div className="flex flex-col gap-2">
-            <span>Vệ sinh:</span>
-            <div className="flex items-center">
-              <div className="flex flex-1 gap-1 items-center">
-                <span>Phòng 1:</span>
-                <SelectFieldWork
-                  onValueChange={handleSetRoom1}
-                  items={empsRoom1Options ?? []}
-                  value={String(empRoom1?.id)}
-                />
-              </div>
-              <div className="flex flex-1 gap-1 items-center">
-                <span>Nhà vệ sinh:</span>
-                <SelectFieldWork
-                  onValueChange={handleSetToilet}
-                  items={empsRoom3Options ?? []}
-                  value={String(empToilet?.id)}
-                />
-              </div>
-            </div>
-            <div className="flex gap-1 items-center">
-              <span>Phòng 3:</span>
-              <SelectFieldWork
-                onValueChange={handleSetRoom3}
-                items={empsRoom3Options ?? []}
-                value={String(empRoom3?.id)}
-              />
-            </div>
-          </div>
-          <DndItems />
-        </div>
+        <WorkCleaningPanel
+          empRoom1={formState.empRoom1}
+          empRoom3={formState.empRoom3}
+          empToilet={formState.empToilet}
+          empsRoom1Options={empsRoom1Options}
+          empsRoom3Options={empsRoom3Options}
+          onSetRoom1={handleSetRoom1}
+          onSetRoom3={handleSetRoom3}
+          onSetToilet={handleSetToilet}
+        />
       </div>
     </div>
   );

@@ -54,9 +54,9 @@ const CreateSchedule = () => {
     const { employee_ids, ...schedule } = values;
     try {
       await mutateInsert(schedule);
-      if (!data?.[0]) return;
+      if (!data) return;
 
-      const createdSchedule = data[0];
+      const createdSchedule = data;
       const junctionData = employee_ids.map((emp_id) => ({
         schedule_id: createdSchedule.id,
         employee_id: Number(emp_id),
@@ -87,7 +87,7 @@ const CreateSchedule = () => {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        <Button size="sm">+ New Event</Button>
+        <Button size="sm">+ Thêm sự kiện</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

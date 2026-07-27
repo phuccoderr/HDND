@@ -1,9 +1,11 @@
+import { differenceInDays, format, startOfDay } from "date-fns";
+
 const STORAGE_KEY = "rooms_data";
 const STORAGE_KEY_ROOM1 = "room_1";
 const STORAGE_KEY_ROOM3 = "room_3";
 const STORAGE_KEY_TOILET = "toilet";
 
-type Member = {
+export type Member = {
   id: number;
   full_name: string;
 };
@@ -17,7 +19,6 @@ const initialRooms: Record<RoomKey, Member[]> = {
     { id: 9, full_name: "Huy" },
     { id: 10, full_name: "Tấn" },
     { id: 11, full_name: "Hưởng" },
-    { id: 12, full_name: "Bảo" },
   ],
   phong3: [
     { id: 1, full_name: "Khải" },
@@ -48,59 +49,108 @@ export const setStoredRooms = (items: Record<RoomKey, Member[]>) => {
   }
 };
 
-export const getStoredRoom1 = (): Member | null => {
+const START_DATE_ROOM1 = new Date("2026-07-27");
+
+export const getCleaner = (
+  roomMembers: Member[],
+  targetDate: Date = new Date(),
+): Member | null => {
+  if (!roomMembers || roomMembers.length === 0) return null;
+
+  // Tính khoảng cách số ngày từ START_DATE đến targetDate
+  const daysDiff = differenceInDays(
+    startOfDay(targetDate),
+    startOfDay(START_DATE_ROOM1),
+  );
+
+  const index =
+    ((daysDiff % roomMembers.length) + roomMembers.length) % roomMembers.length;
+
+  return roomMembers[index];
+};
+
+const getOverridesFromStorage = (
+  storageKey: string,
+): Record<string, Member> => {
   try {
-    const data = window.localStorage.getItem(STORAGE_KEY_ROOM1);
-    return data ? JSON.parse(data) : null;
+    const data = window.localStorage.getItem(storageKey);
+    return data ? JSON.parse(data) : {};
   } catch (error) {
-    console.error("Lỗi đọc dữ liệu từ localStorage:", error);
-    return null;
+    console.error(`Lỗi đọc ${storageKey} từ localStorage:`, error);
+    return {};
   }
 };
 
-export const setStoredRoom1 = (item: Member) => {
+const setOverrideToStorage = (
+  storageKey: string,
+  targetDate: Date,
+  member: Member,
+) => {
   try {
-    // Chuyển Object/Array thành chuỗi JSON rồi mới lưu
-    window.localStorage.setItem(STORAGE_KEY_ROOM1, JSON.stringify(item));
+    const dateKey = format(targetDate, "yyyy-MM-dd");
+    const currentMap = getOverridesFromStorage(storageKey);
+    currentMap[dateKey] = member;
+    window.localStorage.setItem(storageKey, JSON.stringify(currentMap));
   } catch (error) {
-    console.error("Lỗi khi lưu dữ liệu vào localStorage:", error);
+    console.error(`Lỗi khi lưu ${storageKey} vào localStorage:`, error);
   }
 };
 
-export const getStoredRoom3 = (): Member | null => {
-  try {
-    const data = window.localStorage.getItem(STORAGE_KEY_ROOM3);
-    return data ? JSON.parse(data) : null;
-  } catch (error) {
-    console.error("Lỗi đọc dữ liệu từ localStorage:", error);
-    return null;
+export const getStoredRoom1 = (
+  roomMembers: Member[],
+  targetDate: Date = new Date(),
+): Member | null => {
+  const dateKey = format(targetDate, "yyyy-MM-dd");
+  const overrides = getOverridesFromStorage(STORAGE_KEY_ROOM1);
+
+  // Nếu ngày này có chọn đè -> Trả về người chọn đè
+  if (overrides[dateKey]) {
+    return overrides[dateKey];
   }
+
+  // Nếu không -> Tính tự động xoay vòng
+  return getCleaner(roomMembers, targetDate);
 };
 
-export const setStoredRoom3 = (item: Member) => {
-  try {
-    // Chuyển Object/Array thành chuỗi JSON rồi mới lưu
-    window.localStorage.setItem(STORAGE_KEY_ROOM3, JSON.stringify(item));
-  } catch (error) {
-    console.error("Lỗi khi lưu dữ liệu vào localStorage:", error);
-  }
+export const setStoredRoom1 = (item: Member, targetDate: Date = new Date()) => {
+  setOverrideToStorage(STORAGE_KEY_ROOM1, targetDate, item);
 };
 
-export const getStoredToilet = (): Member | null => {
-  try {
-    const data = window.localStorage.getItem(STORAGE_KEY_TOILET);
-    return data ? JSON.parse(data) : null;
-  } catch (error) {
-    console.error("Lỗi đọc dữ liệu từ localStorage:", error);
-    return null;
+export const getStoredRoom3 = (
+  roomMembers: Member[],
+  targetDate: Date = new Date(),
+): Member | null => {
+  const dateKey = format(targetDate, "yyyy-MM-dd");
+  const overrides = getOverridesFromStorage(STORAGE_KEY_ROOM3);
+
+  if (overrides[dateKey]) {
+    return overrides[dateKey];
   }
+
+  return getCleaner(roomMembers, targetDate);
 };
 
-export const setStoredToilet = (item: Member) => {
-  try {
-    // Chuyển Object/Array thành chuỗi JSON rồi mới lưu
-    window.localStorage.setItem(STORAGE_KEY_TOILET, JSON.stringify(item));
-  } catch (error) {
-    console.error("Lỗi khi lưu dữ liệu vào localStorage:", error);
+export const setStoredRoom3 = (item: Member, targetDate: Date = new Date()) => {
+  setOverrideToStorage(STORAGE_KEY_ROOM3, targetDate, item);
+};
+
+export const getStoredToilet = (
+  roomMembers: Member[],
+  targetDate: Date = new Date(),
+): Member | null => {
+  const dateKey = format(targetDate, "yyyy-MM-dd");
+  const overrides = getOverridesFromStorage(STORAGE_KEY_TOILET);
+
+  if (overrides[dateKey]) {
+    return overrides[dateKey];
   }
+
+  return getCleaner(roomMembers, targetDate);
+};
+
+export const setStoredToilet = (
+  item: Member,
+  targetDate: Date = new Date(),
+) => {
+  setOverrideToStorage(STORAGE_KEY_TOILET, targetDate, item);
 };

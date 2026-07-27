@@ -44,6 +44,7 @@ export const useEmployeeQuery = (id?: number) => {
 
       return data as Employee;
     },
+    enabled: !!id,
   });
 };
 
@@ -76,20 +77,21 @@ export const useInsertEmployee = () => {
     mutationFn: async (newEmployee: Omit<Employee, "id">) => {
       const { data, error } = await supabaseClient
         .from("employees")
-        .insert([newEmployee])
-        .select();
+        .insert(newEmployee)
+        .select()
+        .single();
 
       if (error) {
         console.error("Error inserting employee:", error);
         throw error;
       }
 
-      return (data as Employee[]) ?? [];
+      return data as Employee;
     },
     onSuccess: async (data) => {
       queryClient.setQueryData<Employee[]>(employeesQueryKey, (prev = []) => [
         ...prev,
-        ...(data ?? []),
+        data,
       ]);
       await queryClient.invalidateQueries({ queryKey: employeesQueryKey });
     },
@@ -109,14 +111,15 @@ export const useUpdateEmployee = () => {
         .from("employees")
         .update(updatedFields)
         .eq("id", id)
-        .select();
+        .select()
+        .single();
 
       if (error) {
         console.error(`Error updating employee ${id}:`, error);
         throw error;
       }
 
-      return (data as Employee[]) ?? [];
+      return data as Employee;
     },
     onSuccess: async (_data, variables) => {
       queryClient.setQueryData<Employee[]>(employeesQueryKey, (prev = []) =>

@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { GripVertical, Users } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { isSortable, useSortable } from "@dnd-kit/react/sortable";
+import { useSortable } from "@dnd-kit/react/sortable";
 import {
   DragDropProvider,
   useDroppable,
@@ -47,10 +47,10 @@ function MemberPill({
     <div
       ref={ref}
       data-dragging={isDragging}
-      className="flex cursor-grab touch-none items-center gap-1 whitespace-nowrap rounded-full border border-border bg-white p-1.5 text-sm shadow-sm active:cursor-grabbing select-none"
+      className="flex cursor-grab touch-none items-center gap-1 whitespace-nowrap rounded-full border border-border bg-white p-1.5 text-[12px] shadow-sm active:cursor-grabbing select-none"
     >
       <GripVertical className="h-3.5 w-3.5 text-muted-foreground" />
-      <span className="text-xs text-foreground font-medium">
+      <span className="text-[12px] text-foreground font-medium">
         {member.full_name}
       </span>
     </div>
@@ -78,12 +78,12 @@ function RoomRow({
   const style = isDropTarget ? { background: "#00000030" } : undefined;
 
   return (
-    <Card>
+    <Card className="flex-1">
       <CardHeader className="flex items-center gap-2">
-        <span className="text-sm font-semibold text-foreground">
+        <span className="text-[12px] font-semibold text-foreground">
           {roomLabels[roomKey]}
         </span>
-        <Badge variant="secondary" className="gap-1 font-normal">
+        <Badge variant="secondary" className="gap-1 font-normal text-[12px]">
           <Users className="h-3 w-3" />
           {members.length}
         </Badge>
@@ -95,7 +95,7 @@ function RoomRow({
         className="flex flex-col gap-2 min-w-50"
       >
         {members.length === 0 ? (
-          <span className="px-2 text-xs text-muted-foreground italic">
+          <span className="px-2 text-[12px] text-muted-foreground italic">
             Kéo thành viên vào đây
           </span>
         ) : (
@@ -155,7 +155,7 @@ const DndItems = () => {
         }
       }, [])}
     >
-      <div className="flex flex-row gap-5">
+      <div className="flex gap-5">
         {rooms.map((room) => {
           const members = items[room as RoomKey];
           return (

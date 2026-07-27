@@ -41,6 +41,7 @@ export const scheduleFormSchema = z.object({
   is_all_day: z.boolean(),
   start_datetime: z.string(),
   end_datetime: z.string(),
+  is_updated: z.boolean(),
   employee_ids: z.array(z.string()),
 });
 
@@ -61,5 +62,6 @@ export const defaultScheduleFormValues: ScheduleFormValues = {
   is_all_day: false,
   start_datetime: buildDateTimeValue(new Date(), "00:00"),
   end_datetime: buildDateTimeValue(new Date(), "00:00"),
+  is_updated: true,
   employee_ids: [],
 };

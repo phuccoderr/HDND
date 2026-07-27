@@ -74,7 +74,10 @@ const ComboboxFieldWork = <TOption,>({
       value={value}
       onValueChange={onValueChange}
     >
-      <ComboboxChips ref={anchor} className="rounded min-h-6 py-0">
+      <ComboboxChips
+        ref={anchor}
+        className="flex-1 rounded min-h-6 py-0 text-[12px]"
+      >
         <ComboboxValue>
           {(values: TOption[]) => (
             <>
@@ -93,10 +96,14 @@ const ComboboxFieldWork = <TOption,>({
         </ComboboxValue>
       </ComboboxChips>
       <ComboboxContent anchor={anchor}>
-        <ComboboxEmpty>{emptyText}</ComboboxEmpty>
+        <ComboboxEmpty className="text-[12px]">{emptyText}</ComboboxEmpty>
         <ComboboxList>
           {(item: TOption) => (
-            <ComboboxItem key={String(resolveOptionValue(item))} value={item}>
+            <ComboboxItem
+              key={String(resolveOptionValue(item))}
+              value={item}
+              className="text-[12px]"
+            >
               {resolveOptionLabel(item)}
             </ComboboxItem>
           )}

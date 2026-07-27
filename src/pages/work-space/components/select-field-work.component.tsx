@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import {
   Select,
   SelectContent,
@@ -34,9 +34,9 @@ export const SelectFieldWork = ({
 
   return (
     <Select value={value} onValueChange={onValueChange} disabled={disabled}>
-      <SelectTrigger className="h-6! rounded text-blue-fg bg-blue-bg focus-visible:border-transparent focus-visible:ring-0 focus-visible:outline-none [&>svg]:hidden">
+      <SelectTrigger className="text-blue-fg bg-blue-bg focus-visible:border-transparent focus-visible:ring-0 focus-visible:outline-none [&>svg]:hidden">
         <SelectValue placeholder={placeholder}>
-          <span className="text-blue-fg">
+          <span className=" text-blue-fg">
             {selectedItem ? selectedItem.label : placeholder}
           </span>
         </SelectValue>
@@ -48,7 +48,11 @@ export const SelectFieldWork = ({
         className="data-[state=open]:slide-in-from-bottom-8 data-[state=open]:zoom-in-100 duration-400"
       >
         {items.map((item) => (
-          <SelectItem key={item.value} value={item.value} className="text-sm">
+          <SelectItem
+            key={item.value}
+            value={item.value}
+            className="text-[12px]"
+          >
             {item.label}
           </SelectItem>
         ))}

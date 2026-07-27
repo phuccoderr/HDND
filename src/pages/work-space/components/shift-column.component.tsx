@@ -9,7 +9,7 @@ import {
 import TimeInput, { type TimeValue } from "@/components/ui/time-input";
 import { Plus, Trash2 } from "lucide-react";
 import ComboboxFieldWork from "./combobox-field-work.component";
-import { type Employee, useEmployeesQuery } from "@/apis/employee.api";
+import type { Employee } from "@/apis/employee.api";
 
 let idCounter = 0;
 export const nextId = (): string => `shift-${Date.now()}-${idCounter++}`;
@@ -150,6 +150,7 @@ type ShiftColumnProps = {
   onChange: (shift: Shift) => void;
   onRemove: (id: string) => void;
   onAdd: () => void;
+  employees?: Employee[];
 };
 
 export function ShiftColumn({
@@ -162,12 +163,13 @@ export function ShiftColumn({
   onChange,
   onRemove,
   onAdd,
+  employees,
 }: ShiftColumnProps) {
-  const { data: employees } = useEmployeesQuery();
+  const availableEmployees = employees ?? [];
   return (
-    <Card className="flex flex-col overflow-hidden py-0 gap-0 flex-1">
+    <Card className="flex flex-col overflow-hidden py-0 gap-0 flex-1 text-[12px]">
       <CardHeader className={`gap-0.5 border-b py-3 ${accent.headerBg}`}>
-        <CardTitle className="flex items-center gap-2 text-xs">
+        <CardTitle className="flex items-center gap-2 text-[12px]">
           <span
             className={`flex size-6 items-center justify-center rounded-md ${accent.iconBg}`}
           >
@@ -181,7 +183,7 @@ export function ShiftColumn({
       </CardHeader>
       <CardContent className="flex flex-1 flex-col gap-1.5 p-3">
         {shifts.length === 0 && (
-          <p className="py-4 text-center text-sm text-muted-foreground">
+          <p className="py-4 text-center text-[12px] text-muted-foreground">
             Chưa có ca trực nào
           </p>
         )}
@@ -198,7 +200,7 @@ export function ShiftColumn({
                   : "border-border hover:border-foreground/20"
               }`}
             >
-              <div className="flex items-center gap-1">
+              <div className="inline-flex items-center gap-1">
                 <TimeInput
                   value={startValue}
                   onChange={(value) =>
@@ -215,12 +217,16 @@ export function ShiftColumn({
               </div>
 
               <ComboboxFieldWork
-                options={employees ?? []}
+                options={availableEmployees}
                 value={shift.emps}
                 onValueChange={(value) => {
                   onChange({ ...shift, emps: value });
                 }}
-                optionLabel={(value) => value.full_name}
+                optionLabel={(value) =>
+                  value.full_name.split(" ")[
+                    value.full_name.split(" ").length - 1
+                  ]
+                }
               />
 
               <div className="flex items-center opacity-60 transition-opacity group-hover:opacity-100">

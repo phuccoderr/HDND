@@ -37,6 +37,9 @@ import { toast } from "sonner";
 import UpdateSchedule from "./components/update-schedule.component";
 import { scheduleColorMap } from "./components/schedule-form.schema";
 import { CopyButton } from "@/components/animate-ui/components/buttons/copy";
+import SchedulePanel from "./components/schedule-panel.component";
+import ScheduleCleaning from "./components/schedule-cleaning.component";
+import ScheduleAssignment from "./components/schedule-assignment.component";
 
 const DashboardPage = () => {
   const { data: schedules } = useSchedulesQuery();
@@ -193,6 +196,9 @@ const DashboardPage = () => {
           <h2>{calendarTitle}</h2>
         </div>
         <div className="flex gap-2">
+          <ScheduleAssignment />
+          <ScheduleCleaning />
+          <SchedulePanel />
           <CopyButton variant="outline" size="xs" content="Hello world!" />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

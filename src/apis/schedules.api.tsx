@@ -13,9 +13,11 @@ export type Schedule = {
   note: string;
   is_all_day: boolean;
   employees: Employee[];
+  is_updated: boolean;
+  employee_ids?: number[];
 };
 
-const schedulesQueryKey = ["schedules"] as const;
+export const schedulesQueryKey = ["schedules"] as const;
 
 const fetchSchedulesFromDb = async (): Promise<Schedule[]> => {
   const { data, error } = await supabaseClient.from("schedules").select(`
@@ -28,28 +30,7 @@ const fetchSchedulesFromDb = async (): Promise<Schedule[]> => {
     throw error;
   }
 
-  console.log("data", data);
   return (data as Schedule[]) ?? [];
-};
-
-const fetchOneScheduleFromDb = async (id: string): Promise<Schedule> => {
-  const { data, error } = await supabaseClient
-    .from("schedules")
-    .select(
-      `
-        *,
-        employees (*)
-      `,
-    )
-    .eq("id", id)
-    .single();
-
-  if (error) {
-    console.error(`Error finding schedule ${id}:`, error);
-    throw error;
-  }
-
-  return data as Schedule;
 };
 
 export const useSchedulesQuery = () => {
@@ -63,9 +44,25 @@ export const useScheduleQuery = (id?: string) => {
   return useQuery({
     queryKey: [...schedulesQueryKey, id],
     queryFn: async () => {
-      if (!id) return null;
-      return fetchOneScheduleFromDb(id);
+      const { data, error } = await supabaseClient
+        .from("schedules")
+        .select(
+          `
+        *,
+        employees (*)
+      `,
+        )
+        .eq("id", id)
+        .single();
+
+      if (error) {
+        console.error(`Error finding schedule ${id}:`, error);
+        throw error;
+      }
+
+      return data as Schedule;
     },
+    enabled: !!id,
   });
 };
 
@@ -98,7 +95,40 @@ export const useInsertSchedule = () => {
     mutationFn: async (newSchedule: Omit<Schedule, "id" | "employees">) => {
       const { data, error } = await supabaseClient
         .from("schedules")
-        .insert([newSchedule])
+        .insert(newSchedule)
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Error inserting schedule:", error);
+        throw error;
+      }
+
+      return data as Schedule;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: schedulesQueryKey });
+    },
+  });
+};
+
+export const useInsertSchedules = () => {
+  return useMutation({
+    mutationFn: async (
+      newSchedules: Pick<
+        Schedule,
+        | "title"
+        | "color"
+        | "end_datetime"
+        | "start_datetime"
+        | "is_all_day"
+        | "is_updated"
+        | "note"
+      >[],
+    ) => {
+      const { data, error } = await supabaseClient
+        .from("schedules")
+        .insert(newSchedules)
         .select();
 
       if (error) {
@@ -106,7 +136,7 @@ export const useInsertSchedule = () => {
         throw error;
       }
 
-      return (data as Schedule[]) ?? [];
+      return data as Schedule[];
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: schedulesQueryKey });

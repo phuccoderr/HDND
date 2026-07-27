@@ -55,6 +55,7 @@ const scheduleToFormValues = (schedule: Schedule): ScheduleFormValues => ({
   start_datetime: schedule.start_datetime.substring(0, 19).replace(" ", "T"),
   end_datetime: schedule.end_datetime.substring(0, 19).replace(" ", "T"),
   employee_ids: schedule.employees.map((emp) => String(emp.id)),
+  is_updated: schedule.is_updated,
 });
 
 const UpdateSchedule = ({ schedule, open, onOpenChange }: Props) => {
