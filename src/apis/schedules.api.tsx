@@ -17,32 +17,47 @@ export type Schedule = {
   employee_ids?: number[];
 };
 
-export const schedulesQueryKey = ["schedules"] as const;
+export const schedulesQueryKey = "Schedules" as const;
 
-const fetchSchedulesFromDb = async (): Promise<Schedule[]> => {
-  const { data, error } = await supabaseClient.from("schedules").select(`
+type SchedulesQueryProps = {
+  start_time?: string;
+  end_time?: string;
+};
+
+export const useSchedulesQuery = (props: SchedulesQueryProps) => {
+  return useQuery({
+    queryKey: [schedulesQueryKey, props],
+    queryFn: async () => {
+      const { start_time, end_time } = props;
+
+      let query = supabaseClient.from("schedules").select(`
       *,
       employees (*)
     `);
 
-  if (error) {
-    console.error("Error fetching schedules:", error);
-    throw error;
-  }
+      if (start_time) {
+        query = query.gte("start_datetime", start_time);
+      }
 
-  return (data as Schedule[]) ?? [];
-};
+      if (end_time) {
+        query = query.lte("end_datetime", end_time);
+      }
 
-export const useSchedulesQuery = () => {
-  return useQuery({
-    queryKey: schedulesQueryKey,
-    queryFn: fetchSchedulesFromDb,
+      const { data, error } = await query;
+
+      if (error) {
+        console.error("Error fetching schedules:", error);
+        throw error;
+      }
+
+      return (data as Schedule[]) ?? [];
+    },
   });
 };
 
 export const useScheduleQuery = (id?: string) => {
   return useQuery({
-    queryKey: [...schedulesQueryKey, id],
+    queryKey: [schedulesQueryKey, id],
     queryFn: async () => {
       const { data, error } = await supabaseClient
         .from("schedules")
@@ -82,10 +97,10 @@ export const useDeleteSchedule = () => {
       return id;
     },
     onSuccess: async (id) => {
-      queryClient.setQueryData<Schedule[]>(schedulesQueryKey, (prev = []) =>
+      queryClient.setQueryData<Schedule[]>([schedulesQueryKey], (prev = []) =>
         prev.filter((item) => item.id !== id),
       );
-      await queryClient.invalidateQueries({ queryKey: schedulesQueryKey });
+      await queryClient.invalidateQueries({ queryKey: [schedulesQueryKey] });
     },
   });
 };
@@ -107,7 +122,7 @@ export const useInsertSchedule = () => {
       return data as Schedule;
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: schedulesQueryKey });
+      await queryClient.invalidateQueries({ queryKey: [schedulesQueryKey] });
     },
   });
 };
@@ -139,7 +154,7 @@ export const useInsertSchedules = () => {
       return data as Schedule[];
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: schedulesQueryKey });
+      await queryClient.invalidateQueries({ queryKey: [schedulesQueryKey] });
     },
   });
 };
@@ -167,20 +182,20 @@ export const useUpdateSchedule = () => {
       return (data as Schedule[]) ?? [];
     },
     onSuccess: async (_data, variables) => {
-      queryClient.setQueryData<Schedule[]>(schedulesQueryKey, (prev = []) =>
+      queryClient.setQueryData<Schedule[]>([schedulesQueryKey], (prev = []) =>
         prev.map((item) =>
           item.id === variables.id
             ? { ...item, ...variables.updatedFields }
             : item,
         ),
       );
-      await queryClient.invalidateQueries({ queryKey: schedulesQueryKey });
+      await queryClient.invalidateQueries({ queryKey: [schedulesQueryKey] });
     },
   });
 };
 
 export const setSchedules = (value: SetStateAction<Schedule[]>) => {
-  queryClient.setQueryData<Schedule[]>(schedulesQueryKey, (prev = []) =>
+  queryClient.setQueryData<Schedule[]>([schedulesQueryKey], (prev = []) =>
     typeof value === "function"
       ? (value(prev) as Schedule[])
       : (value as Schedule[]),

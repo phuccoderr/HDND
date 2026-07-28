@@ -1,37 +1,82 @@
 import { format } from "date-fns";
 
-export class DateUtil {
-  static parseInputDDMMYYYY = (value: string): Date | undefined => {
-    const clean = value.replace(/[^0-9]/g, "").slice(0, 8);
-    if (clean.length !== 8) return undefined;
+type DateWithStringProps = {
+  date?: string | Date;
+  hours?: number;
+  minutes?: number;
+  seconds?: number;
+};
 
-    const day = parseInt(clean.slice(0, 2), 10);
-    const month = parseInt(clean.slice(2, 4), 10);
-    const year = parseInt(clean.slice(4, 8), 10);
-
-    if (year < 1900 || month < 1 || month > 12 || day < 1) {
-      return undefined;
-    }
-
-    const daysInMonth = new Date(year, month, 0).getDate();
-    if (day > daysInMonth) return undefined;
-
-    return new Date(year, month - 1, day);
-  };
-  static formatDate = (date?: Date): string => {
-    return date ? format(date, "dd/MM/yyyy") : "";
+export class DateHelper {
+  static formatToUTC = (date: Date) => {
+    return date.toISOString().replace("T", " ").slice(0, 19) + "+00";
   };
 
-  static generateTimeSlots = (): string[] => {
-    const slots: string[] = [];
-    for (let hour = 0; hour < 24; hour++) {
-      for (let minute = 0; minute < 60; minute += 15) {
-        const formattedHour = hour.toString().padStart(2, "0");
-        const formattedMinute = minute.toString().padStart(2, "0");
-        slots.push(`${formattedHour}:${formattedMinute}`);
-      }
+  static formatDateTime = (date: Date) => {
+    return format(date, "yyyy-MM-dd'T'HH:mm:ss");
+  };
+
+  static getDateWithString = ({
+    date,
+    hours = 0,
+    minutes = 0,
+    seconds = 0,
+  }: DateWithStringProps) => {
+    const newDate = date ? new Date(date) : new Date();
+
+    if (hours || minutes || seconds) {
+      newDate.setUTCHours(hours, minutes, seconds, 0);
     }
 
-    return slots;
+    const year = newDate.getUTCFullYear();
+    const month = newDate.getUTCMonth() + 1;
+    const day = newDate.getUTCDate();
+    const hour = newDate.getUTCHours();
+    const minute = newDate.getUTCMinutes();
+    const second = newDate.getUTCSeconds();
+
+    const monthStr = String(month).padStart(2, "0");
+    const dayStr = String(day).padStart(2, "0");
+    const hourStr = String(hour).padStart(2, "0");
+    const minuteStr = String(minute).padStart(2, "0");
+    const secondStr = String(second).padStart(2, "0");
+
+    return {
+      // Thông tin giờ
+      hours: newDate.getHours(),
+      minutes: newDate.getMinutes(),
+      seconds: newDate.getSeconds(),
+      hourString: hourStr,
+      minuteString: minuteStr,
+      secondString: secondStr,
+      timeString: `${hourStr}:${minuteStr}:${secondStr}`,
+
+      // Thông tin ngày
+      year: year,
+      month: month,
+      day: day,
+      monthString: monthStr,
+      dayString: dayStr,
+
+      // Thông tin đầy đủ
+      dateString: `${year}-${monthStr}-${dayStr}`,
+      dateTimeString: `${year}-${monthStr}-${dayStr} ${hourStr}:${minuteStr}:${secondStr}`,
+      dateTimeUTC: this.formatToUTC(newDate),
+
+      // Ngày trong tuần
+      dayOfWeek: newDate.getDay(),
+      dayOfWeekString: [
+        "Chủ nhật",
+        "Thứ 2",
+        "Thứ 3",
+        "Thứ 4",
+        "Thứ 5",
+        "Thứ 6",
+        "Thứ 7",
+      ][newDate.getDay()],
+
+      // Object Date gốc
+      dateObject: newDate,
+    };
   };
 }

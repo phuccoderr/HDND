@@ -23,7 +23,7 @@ type Props<TOption> = {
   optionLabel?: (option: TOption) => string;
 };
 
-const ComboboxFieldWork = <TOption,>({
+const ComboboxCommon = <TOption,>({
   options,
   value,
   htmlFor,
@@ -113,4 +113,4 @@ const ComboboxFieldWork = <TOption,>({
   );
 };
 
-export default ComboboxFieldWork;
+export default ComboboxCommon;

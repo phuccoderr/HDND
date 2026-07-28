@@ -2,7 +2,6 @@ import { createBrowserRouter } from "react-router-dom";
 import Layout from "@/templates/layout.template";
 import DashboardPage from "@/pages/dashboard";
 import UserPage from "@/pages/users";
-import WorkPage from "@/pages/work-space";
 
 const router = createBrowserRouter([
   // Public
@@ -13,16 +12,16 @@ const router = createBrowserRouter([
     children: [
       {
         element: <DashboardPage></DashboardPage>,
-        path: "/dashboard",
+        path: "/",
       },
       {
         element: <UserPage />,
         path: "/users",
       },
-      {
-        element: <WorkPage />,
-        path: "/works",
-      },
+      // {
+      //   element: <WorkPage />,
+      //   path: "/works",
+      // },
     ],
   },
 ]);

@@ -87,7 +87,10 @@ const CreateSchedule = () => {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        <Button size="sm">+ Thêm sự kiện</Button>
+        <Button size="sm">
+          <span className="hidden lg:inline">+ Thêm sự kiện</span>
+          <span className="lg:hidden">+</span>
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -99,12 +102,15 @@ const CreateSchedule = () => {
         >
           <ScheduleFormFields control={form.control} />
         </form>
-        <DialogFooter className="items-center justify-between!">
-          <div className="flex items-center gap-1">
+        <DialogFooter className="items-center">
+          <div className="flex items-center gap-1 ml-auto">
             <Button
               type="button"
               variant="outline"
-              onClick={() => form.reset(defaultScheduleFormValues)}
+              onClick={() => {
+                form.reset(defaultScheduleFormValues);
+                setIsOpen(false);
+              }}
             >
               Hủy
             </Button>

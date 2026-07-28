@@ -7,7 +7,7 @@ import interactionPlugin, {
   type EventResizeDoneArg,
 } from "@fullcalendar/interaction";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, List, Timer } from "lucide-react";
+import { ChevronLeft, ChevronRight, List } from "lucide-react";
 import type {
   AllDayContentArg,
   DatesSetArg,
@@ -36,13 +36,14 @@ import CreateSchedule from "./components/create-schedule.component";
 import { toast } from "sonner";
 import UpdateSchedule from "./components/update-schedule.component";
 import { scheduleColorMap } from "./components/schedule-form.schema";
-import { CopyButton } from "@/components/animate-ui/components/buttons/copy";
 import SchedulePanel from "./components/schedule-panel.component";
 import ScheduleCleaning from "./components/schedule-cleaning.component";
 import ScheduleAssignment from "./components/schedule-assignment.component";
+import ScheduleCaptureUI from "./components/schedule-capture-ui.component";
+import { Label } from "@/components/ui/label";
 
 const DashboardPage = () => {
-  const { data: schedules } = useSchedulesQuery();
+  const { data: schedules } = useSchedulesQuery({});
   const { mutateAsync: mutateUpdateSchedule } = useUpdateSchedule();
   const containerRef = useRef<HTMLDivElement>(null);
   const calendarRef = useRef<FullCalendar>(null);
@@ -182,6 +183,7 @@ const DashboardPage = () => {
 
   return (
     <div ref={containerRef} className="m-4 border rounded-md">
+      <Label className="p-2">{calendarTitle}</Label>
       <div className="flex justify-between items-center p-2">
         <div className="flex gap-1 items-center">
           <Button size="sm" onClick={goToday}>
@@ -193,13 +195,12 @@ const DashboardPage = () => {
           <Button onClick={goNext} size="icon-xs" variant="ghost">
             <ChevronRight />
           </Button>
-          <h2>{calendarTitle}</h2>
         </div>
         <div className="flex gap-2">
+          <ScheduleCaptureUI />
           <ScheduleAssignment />
           <ScheduleCleaning />
           <SchedulePanel />
-          <CopyButton variant="outline" size="xs" content="Hello world!" />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="icon-sm">
@@ -212,6 +213,9 @@ const DashboardPage = () => {
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => changeView("timeGridWeek")}>
                 Tuần
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => changeView("timeGridDay")}>
+                Ngày
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -226,6 +230,7 @@ const DashboardPage = () => {
         initialView="timeGridWeek"
         events={events}
         // Config
+        stickyHeaderDates={true}
         headerToolbar={false}
         height="auto"
         slotDuration="00:30:00"
@@ -289,7 +294,7 @@ const DashboardPage = () => {
             >
               <span>{arg.event.title}</span>
               <span className="opacity-60 flex items-center gap-1">
-                {isAllDay ? "24 giờ" : arg.timeText} <Timer size={12} />
+                {isAllDay ? "24 giờ" : arg.timeText}
               </span>
               <div className="flex flex-col gap-1">
                 {arg.event.extendedProps?.users?.map((user: string) => (

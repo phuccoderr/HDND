@@ -39,7 +39,7 @@ const Header = () => {
   }, []);
 
   return (
-    <div className="sticky top-0 z-10 border-b">
+    <div className="sticky top-0 z-10 border-b  bg-background/70 backdrop-blur-md ">
       <div className="flex justify-between p-2 items-center">
         <div className="flex gap-2">
           <Button onClick={toggleSidebar} variant="outline" size="icon">

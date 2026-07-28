@@ -1,14 +1,6 @@
 import { useEmployeesQuery } from "@/apis/employee.api";
-import {
-  employeesByScheduleQueryKey,
-  fetchEmployeesByScheduleFromDb,
-  useInsertScheduleToEmployees,
-} from "@/apis/employees_schedules.api";
-import {
-  schedulesQueryKey,
-  useInsertSchedule,
-  useInsertSchedules,
-} from "@/apis/schedules.api";
+import { useInsertScheduleToEmployees } from "@/apis/employees_schedules.api";
+import { schedulesQueryKey, useInsertSchedules } from "@/apis/schedules.api";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,6 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/spinner";
 import { queryClient } from "@/lib/query-client";
 import {
@@ -30,8 +23,9 @@ import {
   timeToMinutes,
   type Period,
   type Shift,
-} from "@/pages/work-space/components/shift-column.component";
-import { addDays, format } from "date-fns";
+} from "@/pages/dashboard/components/shift-column.component";
+import { DateHelper } from "@/utils/date.util";
+import { addDays } from "date-fns";
 import { CalendarPlus, Moon, Sun } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -149,7 +143,7 @@ const SchedulePanel = () => {
 
     baseDate.setHours(hours, minutes, 0, 0);
 
-    return format(baseDate, "yyyy-MM-dd'T'HH:mm:ss");
+    return DateHelper.formatDateTime(baseDate);
   };
 
   const hanldeSave = async () => {
@@ -204,7 +198,7 @@ const SchedulePanel = () => {
     }
 
     queryClient.refetchQueries({
-      queryKey: schedulesQueryKey,
+      queryKey: [schedulesQueryKey],
     });
 
     setDayShifts(INITIAL_DAY_SHIFTS);
@@ -221,39 +215,55 @@ const SchedulePanel = () => {
           <CalendarPlus />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="max-w-sm lg:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Tạo ca trực</DialogTitle>
           <DialogDescription>
             Sắp xếp nhanh ca trực của ngày hôm nay
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-2 lg:grid-cols-2">
-          <ShiftColumn
-            title="Ca ngày"
-            rangeLabel="06:00 – 18:00"
-            icon={<Sun className="size-3.5 text-amber-600" />}
-            accent={{ headerBg: "bg-amber-50", iconBg: "bg-amber-100" }}
-            shifts={dayShifts}
-            overlapIds={overlapIds}
-            onChange={updateDayShift}
-            onRemove={removeDayShift}
-            onAdd={() => addShift("day")}
-            employees={employees}
-          />
-          <ShiftColumn
-            title="Ca đêm"
-            rangeLabel="18:00 – 06:00"
-            icon={<Moon className="size-3.5 text-indigo-600" />}
-            accent={{ headerBg: "bg-indigo-50", iconBg: "bg-indigo-100" }}
-            shifts={nightShifts}
-            overlapIds={overlapIds}
-            onChange={updateNightShift}
-            onRemove={removeNightShift}
-            onAdd={() => addShift("night")}
-            employees={employees}
-          />
-        </div>
+        <ScrollArea className="max-h-[400px]">
+          <div className="grid gap-2 lg:grid-cols-2">
+            <ShiftColumn
+              title="Ca ngày"
+              rangeLabel="06:00 – 18:00"
+              icon={<Sun className="size-3.5 text-amber-600" />}
+              accent={{
+                headerBg: "bg-amber-50 dark:bg-amber-950/40",
+
+                iconBg:
+                  "bg-amber-100 dark:bg-amber-900/50 border border-transparent dark:border-amber-800/50",
+
+                text: "text-amber-900 dark:text-amber-300",
+              }}
+              shifts={dayShifts}
+              overlapIds={overlapIds}
+              onChange={updateDayShift}
+              onRemove={removeDayShift}
+              onAdd={() => addShift("day")}
+              employees={employees}
+            />
+            <ShiftColumn
+              title="Ca đêm"
+              rangeLabel="18:00 – 06:00"
+              icon={<Moon className="size-3.5 text-indigo-600" />}
+              accent={{
+                headerBg: "bg-indigo-50 dark:bg-indigo-950/40",
+
+                iconBg:
+                  "bg-indigo-100 dark:bg-indigo-900/50 border border-transparent dark:border-indigo-800/50",
+
+                text: "text-indigo-900 dark:text-indigo-200",
+              }}
+              shifts={nightShifts}
+              overlapIds={overlapIds}
+              onChange={updateNightShift}
+              onRemove={removeNightShift}
+              onAdd={() => addShift("night")}
+              employees={employees}
+            />
+          </div>
+        </ScrollArea>
         <DialogFooter>
           <Button>Hủy</Button>
           <Button onClick={hanldeSave} disabled={loading}>

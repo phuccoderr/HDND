@@ -12,6 +12,7 @@ import {
 } from "./schedule-form.schema";
 import { ComboboxField } from "@/components/combobox-field.component";
 import { useEmployeesQuery } from "@/apis/employee.api";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 type Props = { control: Control<ScheduleFormValues> };
 
@@ -20,60 +21,62 @@ export const ScheduleFormFields = ({ control }: Props) => {
   const { data: employees } = useEmployeesQuery();
 
   return (
-    <FieldGroup>
-      <InputField
-        label="Tiêu đề"
-        name="title"
-        htmlFor="event-title"
-        control={control}
-        placeholder="Nhập tiêu đề sự kiện"
-      />
-      <TextareaField
-        label="Ghi chú"
-        name="note"
-        htmlFor="event-note"
-        control={control}
-        placeholder="Nhập ghi chú"
-      />
-      <ComboboxField
-        control={control}
-        label="Thành viên"
-        htmlFor="employee"
-        name="employee_ids"
-        options={employees ?? []}
-      />
-      <CalenderField
-        label="Bắt đầu ngày"
-        name="start_datetime"
-        control={control}
-      />
-      <CalenderField
-        label="Kết thúc ngày"
-        name="end_datetime"
-        control={control}
-      />
-      <CheckboxField
-        label="Cả ngày"
-        control={control}
-        name="is_all_day"
-        htmlFor="is_all_day"
-      />
-      <RadioField
-        label="Màu sắc"
-        name="color"
-        control={control}
-        items={scheduleColors.map((color) => color.key)}
-        className="flex gap-3"
-      >
-        {scheduleColors.map((item) => (
-          <RadioGroupItem
-            value={item.key}
-            key={item.key}
-            className="w-6 h-6 rounded-full hover:opacity-75"
-            style={{ backgroundColor: item.bgColor }}
-          />
-        ))}
-      </RadioField>
-    </FieldGroup>
+    <ScrollArea className="h-75 lg:h-auto [&>[data-radix-scroll-area-viewport]]:lg:overflow-visible">
+      <FieldGroup>
+        <InputField
+          label="Tiêu đề"
+          name="title"
+          htmlFor="event-title"
+          control={control}
+          placeholder="Nhập tiêu đề sự kiện"
+        />
+        <TextareaField
+          label="Ghi chú"
+          name="note"
+          htmlFor="event-note"
+          control={control}
+          placeholder="Nhập ghi chú"
+        />
+        <ComboboxField
+          control={control}
+          label="Thành viên"
+          htmlFor="employee"
+          name="employee_ids"
+          options={employees ?? []}
+        />
+        <CalenderField
+          label="Bắt đầu ngày"
+          name="start_datetime"
+          control={control}
+        />
+        <CalenderField
+          label="Kết thúc ngày"
+          name="end_datetime"
+          control={control}
+        />
+        <CheckboxField
+          label="Cả ngày"
+          control={control}
+          name="is_all_day"
+          htmlFor="is_all_day"
+        />
+        <RadioField
+          label="Màu sắc"
+          name="color"
+          control={control}
+          items={scheduleColors.map((color) => color.key)}
+          className="flex gap-3"
+        >
+          {scheduleColors.map((item) => (
+            <RadioGroupItem
+              value={item.key}
+              key={item.key}
+              className="w-6 h-6 rounded-full hover:opacity-75"
+              style={{ backgroundColor: item.bgColor }}
+            />
+          ))}
+        </RadioField>
+      </FieldGroup>
+    </ScrollArea>
   );
 };

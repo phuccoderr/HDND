@@ -4,7 +4,7 @@ import {
   type Command,
 } from "@/apis/commands.api";
 import { type Duty, useInsertDuty, useUpdateDuty } from "@/apis/duties.api";
-import { type Employee, useEmployeesQuery } from "@/apis/employee.api";
+import { useEmployeesQuery } from "@/apis/employee.api";
 import { supabaseClient } from "@/apis/http.client";
 import { Button } from "@/components/ui/button";
 import { AnimatedCalendar } from "@/components/ui/calender";
@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
-import { SelectFieldWork } from "@/pages/work-space/components/select-field-work.component";
+import { SelectCommon } from "@/components/select-common.component";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { UserRoundCog } from "lucide-react";
@@ -225,7 +225,7 @@ const ScheduleAssignment = () => {
           <Field>
             <FieldLabel htmlFor="command">Chỉ huy</FieldLabel>
             <div className="flex gap-2">
-              <SelectFieldWork
+              <SelectCommon
                 onValueChange={handleChangeCommand}
                 items={employeeCommandItems}
                 value={empCommandId}
@@ -242,7 +242,7 @@ const ScheduleAssignment = () => {
           <Field>
             <FieldLabel htmlFor="duty">Trực ban</FieldLabel>
             <div className="flex gap-2">
-              <SelectFieldWork
+              <SelectCommon
                 onValueChange={handleChangeDuty}
                 items={employeeDutyItems}
                 value={empDutyId}

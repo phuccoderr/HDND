@@ -308,7 +308,11 @@ const defaultPresets: PresetRange[] = [
 ];
 
 const sizeClasses = {
-  sm: { cell: "h-7 w-7 text-xs", header: "text-sm", container: "p-2" },
+  sm: {
+    cell: "h-7 w-7 text-xs",
+    header: "text-xs lg:text-sm",
+    container: "p-2",
+  },
   md: { cell: "h-9 w-9 text-sm", header: "text-base", container: "p-4" },
   lg: { cell: "h-11 w-11 text-base", header: "text-lg", container: "p-5" },
 };
@@ -531,7 +535,7 @@ const TimePicker = React.memo(
               toggleAMPM();
             }}
             disabled={disabled}
-            className="pointer-events-auto ml-2 rounded-lg bg-accent px-3 py-2 font-semibold text-sm transition-colors hover:bg-accent/80 disabled:opacity-50"
+            className="pointer-events-auto ml-2 rounded-lg bg-accent px-3 py-2 font-semibold text-xs lg:text-sm transition-colors hover:bg-accent/80 disabled:opacity-50"
             aria-label={`Switch to ${isPM ? "AM" : "PM"}`}
           >
             {isPM ? "PM" : "AM"}
@@ -613,7 +617,7 @@ const MonthPicker = React.memo(
               onClick={() => !isDisabled && onSelect(index)}
               disabled={isDisabled}
               className={cn(
-                "rounded-lg px-2 py-3 font-medium text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary",
+                "rounded-lg px-2 py-3 font-medium text-xs lg:text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary",
                 isSelected
                   ? "bg-primary text-primary-foreground shadow-md"
                   : "text-foreground hover:bg-accent",
@@ -676,7 +680,7 @@ const YearPicker = React.memo(
           >
             <ChevronsLeft className="h-4 w-4" />
           </button>
-          <span className="font-medium text-muted-foreground text-sm">
+          <span className="font-medium text-muted-foreground text-xs lg:text-sm">
             {years[0]} – {years[years.length - 1]}
           </span>
           <button
@@ -717,7 +721,7 @@ const YearPicker = React.memo(
                 onClick={() => !isDisabled && onSelect(year)}
                 disabled={isDisabled}
                 className={cn(
-                  "rounded-lg px-2 py-3 font-medium text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary",
+                  "rounded-lg px-2 py-3 font-medium text-xs lg:text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary",
                   isSelected
                     ? "bg-primary text-primary-foreground shadow-md"
                     : "text-foreground hover:bg-accent",
@@ -751,7 +755,7 @@ const PresetsPanel = React.memo(
       role="group"
       aria-label="Quick date presets"
     >
-      <span className="mb-2 block font-semibold text-muted-foreground text-xs uppercase tracking-wider">
+      <span className="mb-2 block font-semibold text-muted-foreground text-xs lg:text-sm uppercase tracking-wider">
         Quick Select
       </span>
       {presets.map((preset, index) => (
@@ -764,7 +768,7 @@ const PresetsPanel = React.memo(
           whileHover={{ x: 4 }}
           onClick={() => !disabled && onSelect(preset.getValue())}
           disabled={disabled}
-          className="w-full rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
+          className="w-full rounded-lg px-3 py-2 text-left text-xs lg:text-sm transition-colors hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
         >
           {preset.label}
         </motion.button>
@@ -1533,7 +1537,7 @@ const CalendarContent = React.memo(
               <motion.div
                 key="days"
                 {...(prefersReducedMotion ? {} : fadeScale)}
-                className="flex gap-4"
+                className="flex gap-4 justify-center"
               >
                 {renderMonthGrid(currentMonth)}
                 {monthsToShow >= 2 && (
@@ -1604,7 +1608,7 @@ const CalendarContent = React.memo(
                 handleViewChange("time");
               }}
               disabled={disabled}
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-accent/50 py-2 font-medium text-sm transition-colors hover:bg-accent disabled:opacity-50"
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-accent/50 py-2 font-medium text-xs lg:text-sm transition-colors hover:bg-accent disabled:opacity-50"
             >
               <Clock className="h-4 w-4" />
               {value instanceof Date
@@ -1622,7 +1626,7 @@ const CalendarContent = React.memo(
                 handleViewChange("days");
               }}
               disabled={disabled}
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-accent/50 py-2 font-medium text-sm transition-colors hover:bg-accent disabled:opacity-50"
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-accent/50 py-2 font-medium text-xs lg:text-sm transition-colors hover:bg-accent disabled:opacity-50"
             >
               <CalendarIcon className="h-4 w-4" />
               {localeStrings.backToCalendar}
@@ -1650,7 +1654,7 @@ const CalendarContent = React.memo(
                   {mode === "multiple" &&
                     Array.isArray(value) &&
                     value.length > 0 && (
-                      <span className="text-muted-foreground text-xs">
+                      <span className="text-muted-foreground text-xs lg:text-sm">
                         {value.length} {localeStrings.selected}
                       </span>
                     )}
@@ -1796,14 +1800,16 @@ export function AnimatedCalendar({
             aria-haspopup="dialog"
             className={cn(
               sizeClasses[size],
-              "justify-start text-left font-normal h-8 w-full",
+              "justify-start text-left font-normal h-6 lg:h-8 w-full",
               !value && "text-muted-foreground",
               error && "border-destructive focus:ring-destructive",
               className,
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
-            <span className="flex-1 truncate">{getDisplayValue}</span>
+            <span className="flex-1 truncate text-xs lg:text-sm">
+              {getDisplayValue}
+            </span>
             {required && <span className="ml-1 text-destructive">*</span>}
           </Button>
         </PopoverTrigger>

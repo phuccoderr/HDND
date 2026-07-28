@@ -20,7 +20,7 @@ export type SelectFieldProps = {
   disabled?: boolean;
 };
 
-export const SelectFieldWork = ({
+export const SelectCommon = ({
   items = [],
   value,
   onValueChange,
@@ -36,7 +36,7 @@ export const SelectFieldWork = ({
     <Select value={value} onValueChange={onValueChange} disabled={disabled}>
       <SelectTrigger className="text-blue-fg bg-blue-bg focus-visible:border-transparent focus-visible:ring-0 focus-visible:outline-none [&>svg]:hidden">
         <SelectValue placeholder={placeholder}>
-          <span className=" text-blue-fg">
+          <span className="text-blue-fg">
             {selectedItem ? selectedItem.label : placeholder}
           </span>
         </SelectValue>

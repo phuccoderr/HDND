@@ -197,6 +197,16 @@
   .fc .fc-timegrid-axis-frame {
     @apply bg-accent!;
   }
+
+  .fc .fc-scrollgrid-section-header.fc-scrollgrid-section-sticky > * {
+    @apply top-11.5!;
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  .drag-overlay-safari-fix {
+    top: 8rem !important; /* chỉnh giá trị tùy bạn, ví dụ top-32 */
+  }
 }
 
 /* .fc-theme-standard th {

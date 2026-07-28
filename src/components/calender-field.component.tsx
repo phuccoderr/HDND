@@ -29,6 +29,7 @@ export const CalenderField = <T extends FieldValues>({
         <AnimatedCalendar
           mode="single"
           showTime
+          size="sm"
           locale={vi}
           value={new Date(field.value) ?? new Date()}
           onChange={(date) => {

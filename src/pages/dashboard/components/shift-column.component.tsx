@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import TimeInput, { type TimeValue } from "@/components/ui/time-input";
 import { Plus, Trash2 } from "lucide-react";
-import ComboboxFieldWork from "./combobox-field-work.component";
+import ComboboxFieldWork from "../../../components/combobox-common.component";
 import type { Employee } from "@/apis/employee.api";
 
 let idCounter = 0;
@@ -138,6 +138,7 @@ const formatTimeValue = (value: TimeValue): string =>
 type ColumnAccent = {
   headerBg: string;
   iconBg: string;
+  text?: string;
 };
 
 type ShiftColumnProps = {
@@ -169,7 +170,9 @@ export function ShiftColumn({
   return (
     <Card className="flex flex-col overflow-hidden py-0 gap-0 flex-1 text-[12px]">
       <CardHeader className={`gap-0.5 border-b py-3 ${accent.headerBg}`}>
-        <CardTitle className="flex items-center gap-2 text-[12px]">
+        <CardTitle
+          className={`flex items-center gap-2 text-[12px] dark:text-muted ${accent.text}`}
+        >
           <span
             className={`flex size-6 items-center justify-center rounded-md ${accent.iconBg}`}
           >
@@ -194,7 +197,7 @@ export function ShiftColumn({
           return (
             <div
               key={shift.id}
-              className={`group flex items-center gap-2 rounded-lg border bg-white px-2 py-1.5 transition-colors ${
+              className={`group flex items-center gap-2 rounded-lg border bg-background px-2 py-1.5 transition-colors ${
                 overlapIds.has(shift.id)
                   ? "border-destructive/60 bg-destructive/5"
                   : "border-border hover:border-foreground/20"

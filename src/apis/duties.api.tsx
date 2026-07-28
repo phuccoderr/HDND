@@ -1,12 +1,14 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { supabaseClient } from "./http.client";
 import { queryClient } from "@/lib/query-client";
+import type { Employee } from "./employee.api";
 
 export type Duty = {
   id: number;
   employee_id: number;
   start_time: string;
   end_time: string;
+  employee: Employee;
 };
 
 const dutiesQueryKey = ["duties"] as const;
@@ -50,7 +52,7 @@ export const useDutyQuery = (id?: number) => {
 
 export const useInsertDuty = () => {
   return useMutation({
-    mutationFn: async (payload: Omit<Duty, "id">) => {
+    mutationFn: async (payload: Omit<Duty, "id" | "employee">) => {
       const { data, error } = await supabaseClient
         .from("duties")
         .insert(payload)
@@ -81,7 +83,7 @@ export const useUpdateDuty = () => {
       payload,
     }: {
       id: number;
-      payload: Partial<Omit<Duty, "id">>;
+      payload: Partial<Omit<Duty, "id" | "employee">>;
     }) => {
       const { data, error } = await supabaseClient
         .from("duties")

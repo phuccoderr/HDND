@@ -52,18 +52,18 @@ export function AppSidebar() {
                   <SidebarMenuSub>
                     <SidebarMenuSubItem>
                       <SidebarMenuSubButton asChild>
-                        <Link to={"dashboard"}>
+                        <Link to={"/"}>
                           <span>Tổng hợp</span>
                         </Link>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
-                    <SidebarMenuSubItem>
+                    {/* <SidebarMenuSubItem>
                       <SidebarMenuSubButton asChild>
                         <Link to={"works"}>
                           <span>Ca trực</span>
                         </Link>
                       </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
+                    </SidebarMenuSubItem> */}
                   </SidebarMenuSub>
                 </CollapsibleContent>
               </SidebarMenuItem>
