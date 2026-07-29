@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { supabaseClient } from "./http.client";
 import { queryClient } from "@/lib/query-client";
+import type { Employee } from "./employee.api";
 
 export type CleanRoom = {
   id: number;
@@ -8,6 +9,9 @@ export type CleanRoom = {
   room1_employee_id: number;
   room3_employee_id: number;
   toilet_employee_id: number;
+  room1_employee: Employee | null;
+  room3_employee: Employee | null;
+  toilet_employee: Employee | null;
 };
 
 const cleanRoomQueryKey = "CLEAN_ROOMS" as const;
@@ -34,7 +38,14 @@ export const useCleanRoomQuery = (id?: number) => {
     queryFn: async (): Promise<CleanRoom> => {
       const { data, error } = await supabaseClient
         .from("clean_room")
-        .select("*")
+        .select(
+          `
+      *,
+      room1_employee:employees!clean_room1_employee_id_fkey(*),
+      room3_employee:employees!clean_room1_next_employee_id_fkey(*),
+      toilet_employee:employees!clean_room_toilet_employee_id_fkey(*)
+    `,
+        )
         .eq("id", id)
         .single();
 
@@ -82,7 +93,12 @@ export const useUpdateCleanRoom = () => {
       payload,
     }: {
       id: number;
-      payload: Partial<Omit<CleanRoom, "id">>;
+      payload: Partial<
+        Omit<
+          CleanRoom,
+          "id" | "room1_employee" | "room3_employee" | "toilet_employee"
+        >
+      >;
     }) => {
       const { data, error } = await supabaseClient
         .from("clean_room")

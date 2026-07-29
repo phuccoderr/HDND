@@ -8,7 +8,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Download, Eye } from "lucide-react";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { toBlob } from "html-to-image";
 import { supabaseClient } from "@/apis/http.client";
@@ -17,18 +17,14 @@ import { addDays } from "date-fns";
 import type { Duty } from "@/apis/duties.api";
 import { DateHelper } from "@/utils/date.util";
 import { useSchedulesQuery } from "@/apis/schedules.api";
-import {
-  getStoredRoom1,
-  getStoredRoom3,
-  getStoredRooms,
-  getStoredToilet,
-} from "@/stores/phong.store";
+
 import { Spinner } from "@/components/ui/spinner";
+import { useCleanRoomQuery } from "@/apis/clean_room.api";
 
 const ScheduleCaptureUI = () => {
   const scheduleRef = useRef<HTMLDivElement>(null);
   const toDay = new Date();
-  const storedRooms = useMemo(() => getStoredRooms(), []);
+  const { data: clean_room } = useCleanRoomQuery(1);
 
   const [loading, setLoading] = useState(false);
   const [command, setCommand] = useState<Command | null>();
@@ -191,16 +187,13 @@ const ScheduleCaptureUI = () => {
               <div className="flex-1 flex flex-col gap-2">
                 <span>Vệ sinh</span>
                 <span>
-                  Phòng 1:{" "}
-                  {`(${getStoredRoom1(storedRooms.phong1, new Date())?.full_name})`}
+                  Phòng 1: {`(${clean_room?.room1_employee?.full_name})`}
                 </span>
                 <span>
-                  Phòng 3:{" "}
-                  {`(${getStoredRoom3(storedRooms.phong3, new Date())?.full_name})`}
+                  Phòng 3: {`(${clean_room?.room3_employee?.full_name})`}
                 </span>
                 <span>
-                  Hành lang:{" "}
-                  {`(${getStoredToilet(storedRooms.phong3, new Date())?.full_name})`}
+                  Hành lang: {`(${clean_room?.toilet_employee?.full_name})`}
                 </span>
               </div>
             </div>

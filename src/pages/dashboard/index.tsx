@@ -41,6 +41,7 @@ import ScheduleCleaning from "./components/schedule-cleaning.component";
 import ScheduleAssignment from "./components/schedule-assignment.component";
 import ScheduleCaptureUI from "./components/schedule-capture-ui.component";
 import { Label } from "@/components/ui/label";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const DashboardPage = () => {
   const { data: schedules } = useSchedulesQuery({});
@@ -49,6 +50,7 @@ const DashboardPage = () => {
   const calendarRef = useRef<FullCalendar>(null);
   const [calendarTitle, setCalendarTitle] = useState<string>("");
   const [events, setEvents] = useState<EventInput[]>([]);
+  const isMobile = useIsMobile();
 
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(
     null,
@@ -166,6 +168,20 @@ const DashboardPage = () => {
       info.revert,
     );
   };
+
+  useEffect(() => {
+    const calendarApi = calendarRef.current?.getApi();
+    if (calendarApi) {
+      const targetView = isMobile ? "timeGridDay" : "timeGridWeek";
+
+      if (calendarApi.view.type !== targetView) {
+        // Defer execution outside React's render phase
+        queueMicrotask(() => {
+          calendarApi.changeView(targetView);
+        });
+      }
+    }
+  }, [isMobile]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -300,7 +316,9 @@ const DashboardPage = () => {
               </span>
               <div className="flex flex-col gap-1">
                 {arg.event.extendedProps?.users?.map((user: string) => (
-                  <span className="w-full">{user}</span>
+                  <span key={user} className="w-full">
+                    {user}
+                  </span>
                 ))}
               </div>
             </div>
