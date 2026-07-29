@@ -242,9 +242,9 @@ const DashboardPage = () => {
         eventClick={handleEventClick}
         eventDrop={handleEventDrop} // Hàm chạy khi kéo thả xong
         eventResize={handleEventResize} // Hàm chạy khi kéo giãn thời gian xong
-        longPressDelay={2000}
-        eventLongPressDelay={2000}
-        selectLongPressDelay={2000}
+        longPressDelay={1000}
+        eventLongPressDelay={1000}
+        selectLongPressDelay={1000}
         dayCellDidMount={(info) => {
           if (info.isToday) {
             info.el.classList.add("bg-transparent!");
