@@ -71,10 +71,6 @@ const ScheduleCaptureUI = () => {
     return startDate >= startNightTime && startDate < endNightTime;
   });
 
-  console.log({
-    dayShifts,
-  });
-
   const copyUiToClipboard = async (
     elementRef: React.RefObject<HTMLDivElement | null>,
     fileName = "ca-truc.png",
@@ -200,11 +196,11 @@ const ScheduleCaptureUI = () => {
                 </span>
                 <span>
                   Phòng 3:{" "}
-                  {`(${getStoredRoom3(storedRooms.phong1, new Date())?.full_name})`}
+                  {`(${getStoredRoom3(storedRooms.phong3, new Date())?.full_name})`}
                 </span>
                 <span>
                   Hành lang:{" "}
-                  {`(${getStoredToilet(storedRooms.phong1, new Date())?.full_name})`}
+                  {`(${getStoredToilet(storedRooms.phong3, new Date())?.full_name})`}
                 </span>
               </div>
             </div>

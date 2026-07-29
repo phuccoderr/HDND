@@ -6,6 +6,8 @@ export type Employee = {
   id: number;
   full_name: string;
   type: "EMPLOYEE" | "COMMAND" | "DUTY";
+  room: "ROOM1" | "ROOM3";
+  order: number;
 };
 
 const employeesQueryKey = ["employees"] as const;
@@ -130,6 +132,31 @@ export const useUpdateEmployee = () => {
         ),
       );
       await queryClient.invalidateQueries({ queryKey: employeesQueryKey });
+    },
+  });
+};
+
+export const useUpdateEmployees = () => {
+  return useMutation({
+    mutationFn: async ({
+      updatedEmployees,
+    }: {
+      updatedEmployees: (Partial<Employee> & { id: number })[];
+    }) => {
+      const { data, error } = await supabaseClient
+        .from("employees")
+        .upsert(updatedEmployees)
+        .select();
+
+      if (error) {
+        console.error(`Error updating employees:`, error);
+        throw error;
+      }
+
+      return data as Employee[];
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: employeesQueryKey });
     },
   });
 };

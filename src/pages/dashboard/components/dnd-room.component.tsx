@@ -18,24 +18,24 @@ import {
   PointerActivationConstraints,
 } from "@dnd-kit/dom";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { getStoredRooms, setStoredRooms } from "@/stores/phong.store";
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { RestrictToWindow } from "@dnd-kit/dom/modifiers";
+import {
+  useEmployeesQuery,
+  useUpdateEmployees,
+  type Employee,
+} from "@/apis/employee.api";
+import { toast } from "sonner";
 
-type Member = {
-  id: number;
-  full_name: string;
-};
-
-type RoomKey = "phong1" | "phong3";
+type RoomKey = "ROOM1" | "ROOM3";
 
 const roomLabels: Record<RoomKey, string> = {
-  phong1: "Phòng 1",
-  phong3: "Phòng 3",
+  ROOM1: "Phòng 1",
+  ROOM3: "Phòng 3",
 };
 
-function MemberPillContent({ member }: { member: Member }) {
+function MemberPillContent({ member }: { member: Employee }) {
   return (
     <div className="flex items-center gap-1 whitespace-nowrap rounded-full  bg-background h-6 select-none">
       <GripVertical className="h-3.5 w-3.5 text-muted-foreground" />
@@ -50,17 +50,17 @@ function MemberPill({
   index,
 }: {
   roomKey: RoomKey;
-  member: Member;
+  member: Employee;
   index: number;
 }) {
   const { ref, isDragging } = useSortable({
     id: member.id,
-    index,
+    index: index,
     type: "member",
     accept: "member",
     // plugins: [Feedback.configure({ feedback: "clone" })],
     group: roomKey,
-    data: { roomKey, member },
+    data: { roomKey, member: { ...member, index: index } },
   });
 
   return (
@@ -73,6 +73,7 @@ function MemberPill({
         isDragging && "opacity-40 border-dashed",
       )}
     >
+      <span>index: {index}</span>
       <MemberPillContent member={member} />
     </div>
   );
@@ -87,7 +88,7 @@ function RoomRow({
   members,
 }: {
   roomKey: RoomKey;
-  members: Member[];
+  members: Employee[];
 }) {
   const { ref } = useDroppable({
     id: roomKey,
@@ -160,19 +161,37 @@ function RoomRow({
 }
 
 const DndRoom = () => {
-  const [items, setItems] = useState<Record<RoomKey, Member[]>>(() =>
-    getStoredRooms(),
-  );
+  const { data: employees } = useEmployeesQuery();
+  const { mutateAsync: mutateUpdateEmps } = useUpdateEmployees();
+
+  const [items, setItems] = useState<Record<RoomKey, Employee[]>>({
+    ROOM1: [],
+    ROOM3: [],
+  });
+
   const [rooms] = useState(Object.keys(items));
   const snapshot = useRef(structuredClone(items));
 
-  const [activeMember, setActiveMember] = useState<Member | null>(null);
+  const [activeMember, setActiveMember] = useState<Employee | null>(null);
 
   useEffect(() => {
-    if (items) {
-      setStoredRooms(items);
+    if (employees) {
+      const sortByOrder = (a: Employee, b: Employee) =>
+        (a.order ?? 0) - (b.order ?? 0);
+      const room1 = employees
+        .filter((emp) => emp.room === "ROOM1")
+        .sort(sortByOrder);
+      const room3 = employees
+        .filter((emp) => emp.room === "ROOM3")
+        .sort(sortByOrder);
+
+      setItems({
+        ROOM1: room1,
+        ROOM3: room3,
+      });
     }
-  }, [items]);
+  }, [employees]);
+
   return (
     <DragDropProvider
       sensors={[
@@ -207,7 +226,7 @@ const DndRoom = () => {
           snapshot.current = structuredClone(items);
 
           const { source } = event.operation;
-          const member = source?.data.member as Member;
+          const member = source?.data.member as Employee;
           setActiveMember(member);
         },
         [items],
@@ -222,13 +241,34 @@ const DndRoom = () => {
 
         setItems((items) => move(items, event));
       }, [])}
-      onDragEnd={useCallback<DragDropEventHandlers["onDragEnd"]>((event) => {
-        if (event.canceled) {
-          setItems(snapshot.current);
-          return;
-        }
-        setActiveMember(null);
-      }, [])}
+      onDragEnd={useCallback<DragDropEventHandlers["onDragEnd"]>(
+        async (event) => {
+          if (event.canceled) {
+            setItems(snapshot.current);
+            return;
+          }
+          setActiveMember(null);
+
+          const rooms1 = items.ROOM1.map((prev, index) => ({
+            ...prev,
+            room: "ROOM1" as RoomKey,
+            order: index + 1,
+          }));
+          const rooms3 = items.ROOM3.map((prev, index) => ({
+            ...prev,
+            room: "ROOM3" as RoomKey,
+            order: index + 1,
+          }));
+          const allEmployees = [...(rooms1 ?? []), ...(rooms3 ?? [])];
+
+          await mutateUpdateEmps({
+            updatedEmployees: allEmployees,
+          });
+
+          toast.success("Cập nhật danh sách thành công");
+        },
+        [items],
+      )}
     >
       <div className="flex flex-col gap-2 lg:flex-row">
         {rooms.map((room) => {

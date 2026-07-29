@@ -10,77 +10,78 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import DndRoom from "@/pages/dashboard/components/dnd-room.component";
 import { SelectCommon } from "@/components/select-common.component";
-import {
-  getStoredRoom1,
-  getStoredRoom3,
-  getStoredRooms,
-  getStoredToilet,
-  setStoredRoom1,
-  setStoredRoom3,
-  setStoredToilet,
-  type Member,
-} from "@/stores/phong.store";
+
 import { BrushCleaning } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Label } from "@/components/ui/label";
+import { useEmployeesQuery } from "@/apis/employee.api";
+import { useCleanRoomQuery, useUpdateCleanRoom } from "@/apis/clean_room.api";
+import { toast } from "sonner";
 
 const ScheduleCleaning = () => {
-  const [selectedDate, _setSelectedDate] = useState(new Date());
-  const [cleanerRoom1, setCleanerRoom1] = useState<Member | null>(null);
-  const [cleanerRoom3, setCleanerRoom3] = useState<Member | null>(null);
-  const [cleanerToilet, setCleanerToilet] = useState<Member | null>(null);
+  const { data: clean_room } = useCleanRoomQuery(1);
+  const { mutateAsync: mutateUpdateCleanRoom } = useUpdateCleanRoom();
+  const { data: employees } = useEmployeesQuery();
 
-  const storedRooms = useMemo(() => getStoredRooms(), []);
+  const empRoom1Options = useMemo(() => {
+    return employees
+      ?.filter((emp) => emp.room == "ROOM1")
+      .map((emp) => ({
+        label: emp.full_name,
+        value: String(emp.id),
+      }));
+  }, [employees]);
 
-  const empsRoom3Options = storedRooms.phong3.map((emp) => ({
-    label: emp.full_name,
-    value: String(emp.id),
-  }));
+  const empRoom3Options = useMemo(() => {
+    return employees
+      ?.filter((emp) => emp.room == "ROOM3")
+      .map((emp) => ({
+        label: emp.full_name,
+        value: String(emp.id),
+      }));
+  }, [employees]);
 
-  const empsRoom1Options = storedRooms.phong1.map((emp) => ({
-    label: emp.full_name,
-    value: String(emp.id),
-  }));
-
-  const handleSetRoom1 = (roomId: string) => {
-    const member = getStoredRooms().phong1.find(
-      (emp) => emp.id === Number(roomId),
-    );
-    if (member) {
-      setStoredRoom1(member, new Date());
-      setCleanerRoom1(member);
+  const handleSetRoom1 = async (empId: string) => {
+    try {
+      await mutateUpdateCleanRoom({
+        id: 1,
+        payload: {
+          room1_employee_id: Number(empId),
+        },
+      });
+      toast.success("Thay đổi vệ sinh phòng 1 thành công");
+    } catch (error) {
+      toast.error("Lỗi thao tác đổi người dọn vệ sinh phòng 1");
     }
   };
 
-  const handleSetRoom3 = (roomId: string) => {
-    const member = getStoredRooms().phong3.find(
-      (emp) => emp.id === Number(roomId),
-    );
-    if (member) {
-      setStoredRoom3(member, new Date());
-      setCleanerRoom3(member);
+  const handleSetRoom3 = async (empId: string) => {
+    try {
+      await mutateUpdateCleanRoom({
+        id: 1,
+        payload: {
+          room3_employee_id: Number(empId),
+        },
+      });
+      toast.success("Thay đổi vệ sinh phòng 3 thành công");
+    } catch (error) {
+      toast.error("Lỗi thao tác đổi người dọn vệ sinh phòng 3");
     }
   };
 
-  const handleSetToilet = (roomId: string) => {
-    const member = getStoredRooms().phong3.find(
-      (emp) => emp.id === Number(roomId),
-    );
-    if (member) {
-      setStoredToilet(member, new Date());
-      setCleanerToilet(member);
+  const handleSetToilet = async (empId: string) => {
+    try {
+      await mutateUpdateCleanRoom({
+        id: 1,
+        payload: {
+          toilet_employee_id: Number(empId),
+        },
+      });
+      toast.success("Thay đổi vệ sinh hành lang thành công");
+    } catch (error) {
+      toast.error("Lỗi thao tác đổi người dọn vệ sinh hành lang");
     }
   };
-
-  useEffect(() => {
-    const todayCleanerRoom1 = getStoredRoom1(storedRooms.phong1, new Date());
-    const todayCleanerRoom3 = getStoredRoom3(storedRooms.phong3, new Date());
-    const todayCleanerToilet = getStoredToilet(storedRooms.phong3, new Date());
-
-    setCleanerRoom1(todayCleanerRoom1);
-    setCleanerRoom3(todayCleanerRoom3);
-    setCleanerToilet(todayCleanerToilet);
-  }, [selectedDate, storedRooms]);
 
   return (
     <Dialog>
@@ -102,24 +103,24 @@ const ScheduleCleaning = () => {
                   <Label className="font-medium">Phòng 1:</Label>
                   <SelectCommon
                     onValueChange={handleSetRoom1}
-                    items={empsRoom1Options}
-                    value={String(cleanerRoom1?.id ?? "")}
+                    items={empRoom1Options ?? []}
+                    value={String(clean_room?.room1_employee_id ?? "")}
                   />
                 </div>
                 <div className="flex items-center gap-1">
                   <Label className="font-medium">Nhà vệ sinh:</Label>
                   <SelectCommon
                     onValueChange={handleSetToilet}
-                    items={empsRoom3Options}
-                    value={String(cleanerToilet?.id ?? "")}
+                    items={empRoom1Options ?? []}
+                    value={String(clean_room?.toilet_employee_id ?? "")}
                   />
                 </div>
                 <div className="flex items-center gap-1">
                   <Label className="font-medium">Phòng 3:</Label>
                   <SelectCommon
                     onValueChange={handleSetRoom3}
-                    items={empsRoom3Options}
-                    value={String(cleanerRoom3?.id ?? "")}
+                    items={empRoom3Options ?? []}
+                    value={String(clean_room?.room3_employee_id ?? "")}
                   />
                 </div>
               </div>

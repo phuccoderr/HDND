@@ -13,7 +13,10 @@ import {
 } from "@/components/ui/animated-table";
 import { Button } from "@/components/ui/button";
 import CUEmployee from "./components/c-u-employee.component";
-import { employeeTypes } from "./components/employee-form.schema";
+import {
+  employeeRooms,
+  employeeTypes,
+} from "./components/employee-form.schema";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,6 +30,10 @@ import {
 
 const getEmployeeTypeLabel = (type: Employee["type"]) => {
   return employeeTypes.find((item) => item.value === type)?.label ?? type;
+};
+
+const getEmployeeRoomLabel = (type: Employee["room"]) => {
+  return employeeRooms.find((item) => item.value === type)?.label ?? type;
 };
 
 const UserPage = () => {
@@ -115,6 +122,13 @@ const UserPage = () => {
         accessorKey: "type",
         sortable: true,
         cell: (row) => <span>{getEmployeeTypeLabel(row.type)}</span>,
+      },
+      {
+        id: "room",
+        header: "Phòng",
+        accessorKey: "room",
+        sortable: true,
+        cell: (row) => <span>{getEmployeeRoomLabel(row.room)}</span>,
       },
       {
         id: "actions",

@@ -1,5 +1,9 @@
 import { FieldGroup } from "@/components/ui/field";
-import { employeeTypes, type EmployeeFormValues } from "./employee-form.schema";
+import {
+  employeeRooms,
+  employeeTypes,
+  type EmployeeFormValues,
+} from "./employee-form.schema";
 import type { Control } from "react-hook-form";
 import { InputField } from "@/components/input-field.component";
 import { SelectField } from "@/components/select-field.component";
@@ -23,6 +27,14 @@ const EmployeeFormFields = ({ control }: Props) => {
         htmlFor="type"
         items={employeeTypes}
         placeholder="Chọn thành viên"
+      />
+      <SelectField
+        control={control}
+        label="Phòng"
+        name="room"
+        htmlFor="type"
+        items={employeeRooms}
+        placeholder="Chọn phòng"
       />
     </FieldGroup>
   );

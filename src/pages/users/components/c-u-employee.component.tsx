@@ -78,6 +78,8 @@ const CUEmployee = ({ open, onOpenChange, editingEmployee }: Props) => {
       form.reset({
         full_name: editingEmployee.full_name,
         type: editingEmployee.type,
+        room: editingEmployee.room,
+        order: editingEmployee.order,
       });
     }
   }, [editingEmployee]);

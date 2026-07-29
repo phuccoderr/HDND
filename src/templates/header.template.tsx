@@ -31,7 +31,6 @@ const Header = () => {
         )
         .lte("start_time", toDay)
         .gte("end_time", toDay);
-      console.log({ data });
       setCommand(data?.[0]);
     };
 

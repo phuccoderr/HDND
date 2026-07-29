@@ -228,21 +228,23 @@ const DashboardPage = () => {
         // Đăng ký cả dayGrid và timeGrid để nút chuyển đổi hoạt động mượt mà
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView="timeGridWeek"
-        events={events}
         // Config
+        events={events}
         stickyHeaderDates={true}
         headerToolbar={false}
+        editable={true}
+        droppable={true}
         height="auto"
         slotDuration="00:30:00"
         snapDuration="00:15:00"
         // Bật tính năng kéo thả hoặc click nếu cần
         datesSet={handleDatesSet}
-        editable={true}
-        droppable={true}
         eventClick={handleEventClick}
         eventDrop={handleEventDrop} // Hàm chạy khi kéo thả xong
         eventResize={handleEventResize} // Hàm chạy khi kéo giãn thời gian xong
-        longPressDelay={100}
+        longPressDelay={2000}
+        eventLongPressDelay={2000}
+        selectLongPressDelay={2000}
         dayCellDidMount={(info) => {
           if (info.isToday) {
             info.el.classList.add("bg-transparent!");
