@@ -7,11 +7,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Eye } from "lucide-react";
+import { Download, Eye } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { toBlob } from "html-to-image";
-import { CopyButton } from "@/components/animate-ui/components/buttons/copy";
 import { supabaseClient } from "@/apis/http.client";
 import type { Command } from "@/apis/commands.api";
 import { addDays } from "date-fns";
@@ -24,12 +23,14 @@ import {
   getStoredRooms,
   getStoredToilet,
 } from "@/stores/phong.store";
+import { Spinner } from "@/components/ui/spinner";
 
 const ScheduleCaptureUI = () => {
   const scheduleRef = useRef<HTMLDivElement>(null);
   const toDay = new Date();
   const storedRooms = useMemo(() => getStoredRooms(), []);
 
+  const [loading, setLoading] = useState(false);
   const [command, setCommand] = useState<Command | null>();
   const [duty, setDuty] = useState<Duty | null>();
   const { data: schedules } = useSchedulesQuery({
@@ -76,14 +77,13 @@ const ScheduleCaptureUI = () => {
 
   const copyUiToClipboard = async (
     elementRef: React.RefObject<HTMLDivElement | null>,
+    fileName = "ca-truc.png",
   ) => {
     if (!elementRef.current) return;
-
+    setLoading(true);
     try {
-      // 1. Chuyển đổi thẻ HTML (DOM Node) thành dạng Blob (Binary Large Object)
       const blob = await toBlob(elementRef.current, {
         cacheBust: true,
-        backgroundColor: "#ffffff", // Đảm bảo nền trắng, tránh bị trong suốt/đen nền
       });
 
       if (!blob) {
@@ -91,20 +91,26 @@ const ScheduleCaptureUI = () => {
         return;
       }
 
-      // 2. Kiểm tra trình duyệt có hỗ trợ ghi ClipboardItem không
-      if (navigator.clipboard && window.ClipboardItem) {
-        const item = new ClipboardItem({ [blob.type]: blob });
-        await navigator.clipboard.write([item]);
+      // 2. Tạo đường dẫn URL tạm thời từ Blob
+      const url = URL.createObjectURL(blob);
 
-        toast.success(
-          "Đã copy ÁNH vào Clipboard! Bạn có thể dán (Ctrl+V) vào Zalo/Messenger.",
-        );
-      } else {
-        toast.error("Trình duyệt của bạn không hỗ trợ copy ảnh trực tiếp.");
-      }
+      // 3. Xử lý tải về bằng thẻ <a> ẩn
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+
+      // 4. Dọn dẹp DOM và bộ nhớ
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+      toast.success("Đã tải ảnh thành công!");
     } catch (error) {
       console.error("Lỗi copy ảnh:", error);
       toast.error("Không thể copy ảnh vào Clipboard.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -155,17 +161,19 @@ const ScheduleCaptureUI = () => {
           <Eye />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-xl">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Ca trực hôm nay</DialogTitle>
           <DialogDescription className="flex items-center gap-2">
             Xem chi tiết ca trực ngày hôm nay{" "}
-            <CopyButton
+            <Button
               variant="outline"
-              size="xs"
-              content="the heck"
+              size="icon-sm"
               onClick={() => copyUiToClipboard(scheduleRef)}
-            />
+              disabled={loading}
+            >
+              {loading ? <Spinner /> : <Download />}
+            </Button>
           </DialogDescription>
         </DialogHeader>
         <div
@@ -251,7 +259,7 @@ const ScheduleCaptureUI = () => {
                   );
                 })}
               </div>
-              <div className="flex-1"></div>
+              <div className="hidden lg:flex-1"></div>
             </div>
           </div>
         </div>

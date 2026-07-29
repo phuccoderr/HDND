@@ -164,7 +164,7 @@ const UpdateSchedule = ({ schedule, open, onOpenChange }: Props) => {
         >
           <ScheduleFormFields control={form.control} />
         </form>
-        <DialogFooter className="items-center justify-between!">
+        <DialogFooter className="flex-row! items-center justify-between! ">
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button

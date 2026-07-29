@@ -146,6 +146,11 @@ const SchedulePanel = () => {
     return DateHelper.formatDateTime(baseDate);
   };
 
+  const reset = () => {
+    setDayShifts(INITIAL_DAY_SHIFTS);
+    setNightShifts(INITIAL_NIGHT_SHIFTS);
+  };
+
   const hanldeSave = async () => {
     setLoading(true);
     const schedulesDay = dayShifts.map((day) => {
@@ -201,8 +206,7 @@ const SchedulePanel = () => {
       queryKey: [schedulesQueryKey],
     });
 
-    setDayShifts(INITIAL_DAY_SHIFTS);
-    setNightShifts(INITIAL_NIGHT_SHIFTS);
+    reset();
     setOpen(false);
     setLoading(false);
     toast.success("Tạo lịch trực ngày và đêm thành công");
@@ -264,8 +268,16 @@ const SchedulePanel = () => {
             />
           </div>
         </ScrollArea>
-        <DialogFooter>
-          <Button>Hủy</Button>
+        <DialogFooter className="flex-row justify-end">
+          <Button
+            variant="outline"
+            onClick={() => {
+              reset();
+              setOpen(false);
+            }}
+          >
+            Hủy
+          </Button>
           <Button onClick={hanldeSave} disabled={loading}>
             Lưu
             {loading && <Spinner aria-hidden="true" />}
