@@ -2,6 +2,7 @@ import { useEmployeesQuery } from "@/apis/employee.api";
 import { useInsertScheduleToEmployees } from "@/apis/employees_schedules.api";
 import { schedulesQueryKey, useInsertSchedules } from "@/apis/schedules.api";
 import { Button } from "@/components/ui/button";
+import { AnimatedCalendar } from "@/components/ui/calender";
 import {
   Dialog,
   DialogContent,
@@ -11,6 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/spinner";
 import { queryClient } from "@/lib/query-client";
@@ -26,6 +28,7 @@ import {
 } from "@/pages/dashboard/components/shift-column.component";
 import { DateHelper } from "@/utils/date.util";
 import { addDays } from "date-fns";
+import { vi } from "date-fns/locale";
 import { CalendarPlus, Moon, Sun } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -60,6 +63,7 @@ const SchedulePanel = () => {
   const [open, setOpen] = useState(false);
   const [dayShifts, setDayShifts] = useState<Shift[]>(INITIAL_DAY_SHIFTS);
   const [nightShifts, setNightShifts] = useState<Shift[]>(INITIAL_NIGHT_SHIFTS);
+  const [date, setDate] = useState<Date | undefined>(new Date());
 
   // Re State
   const sortDayShifts = useMemo(() => {
@@ -133,7 +137,8 @@ const SchedulePanel = () => {
     }
   };
 
-  const combineShiftDateTime = (targetDate: Date, time: string) => {
+  const combineShiftDateTime = (date: Date | undefined, time: string) => {
+    const targetDate = date ? date : new Date();
     const cleanTimeStr = time === "24:00" ? "00:00" : time;
     const [hours, minutes] = cleanTimeStr.split(":").map(Number);
 
@@ -157,8 +162,8 @@ const SchedulePanel = () => {
       return {
         title: `Ca trực: ${day.start} - ${day.end}`,
         color: "blue",
-        start_datetime: combineShiftDateTime(new Date(), day.start),
-        end_datetime: combineShiftDateTime(new Date(), day.end),
+        start_datetime: combineShiftDateTime(date, day.start),
+        end_datetime: combineShiftDateTime(date, day.end),
         note: `ca trực chốt`,
         is_all_day: false,
         is_updated: true,
@@ -170,8 +175,8 @@ const SchedulePanel = () => {
       return {
         title: `Ca trực: ${day.start} - ${day.end}`,
         color: "blue",
-        start_datetime: combineShiftDateTime(new Date(), day.start),
-        end_datetime: combineShiftDateTime(new Date(), day.end),
+        start_datetime: combineShiftDateTime(date, day.start),
+        end_datetime: combineShiftDateTime(date, day.end),
         note: `ca trực chốt`,
         is_all_day: false,
         is_updated: true,
@@ -226,7 +231,17 @@ const SchedulePanel = () => {
             Sắp xếp nhanh ca trực của ngày hôm nay
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="max-h-[400px]">
+        <div className="flex gap-2">
+          <Label>Thời gian:</Label>
+          <AnimatedCalendar
+            mode="single"
+            locale={vi}
+            value={date}
+            onChange={setDate}
+            defaultValue={date}
+          />
+        </div>
+        <ScrollArea className="max-h-100">
           <div className="grid gap-2 lg:grid-cols-2">
             <ShiftColumn
               title="Ca ngày"

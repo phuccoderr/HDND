@@ -35,13 +35,13 @@ import { format } from "date-fns";
 import CreateSchedule from "./components/create-schedule.component";
 import { toast } from "sonner";
 import UpdateSchedule from "./components/update-schedule.component";
-import { scheduleColorMap } from "./components/schedule-form.schema";
 import SchedulePanel from "./components/schedule-panel.component";
 import ScheduleCleaning from "./components/schedule-cleaning.component";
 import ScheduleAssignment from "./components/schedule-assignment.component";
 import ScheduleCaptureUI from "./components/schedule-capture-ui.component";
 import { Label } from "@/components/ui/label";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { getColorMap } from "@/constants/colors-soft.const";
 
 const DashboardPage = () => {
   const { data: schedules } = useSchedulesQuery({});
@@ -294,7 +294,7 @@ const DashboardPage = () => {
         eventBorderColor="transparent"
         eventDidMount={(arg: EventMountArg) => {
           const colorKey = arg.event.extendedProps?.color;
-          const style = scheduleColorMap[colorKey] ?? scheduleColorMap.blue;
+          const style = getColorMap[colorKey] ?? getColorMap.blue;
           if (style) {
             arg.el.style.backgroundColor = style.bgColor;
           }
@@ -304,7 +304,7 @@ const DashboardPage = () => {
           const viewType = arg.view.type;
           const isAllDay = arg.event.allDay;
           const colorKey = arg.event.extendedProps?.color;
-          const style = scheduleColorMap[colorKey] ?? scheduleColorMap.blue;
+          const style = getColorMap[colorKey] ?? getColorMap.blue;
           return (
             <div
               className={`relative h-full overflow-hidden flex flex-col gap-1 text-xs p-1 rounded-sm ${viewType == "dayGridMonth" && "w-full"}`}

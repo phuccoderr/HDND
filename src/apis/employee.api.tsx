@@ -8,6 +8,7 @@ export type Employee = {
   type: "EMPLOYEE" | "COMMAND" | "DUTY";
   room: "ROOM1" | "ROOM3";
   order: number;
+  color: string;
 };
 
 const employeesQueryKey = ["employees"] as const;

@@ -9,6 +9,7 @@ export const employeeFormSchema = z.object({
     message: "Vui lòng chọn phòng nhân viên",
   }),
   order: z.number(),
+  color: z.string(),
 });
 
 export const employeeTypes = [
@@ -29,4 +30,5 @@ export const defaultEmployeeFormValues: EmployeeFormValues = {
   type: "EMPLOYEE",
   room: "ROOM1",
   order: 1,
+  color: "blue",
 };

@@ -113,6 +113,7 @@ const UpdateSchedule = ({ schedule, open, onOpenChange }: Props) => {
         ...scheduleBody,
         employees: nextEmployees,
       };
+
       setSchedules((prev) =>
         prev.map((s) =>
           s.id === newUpdatedSchedule.id ? { ...s, ...newUpdatedSchedule } : s,

@@ -73,7 +73,6 @@ function MemberPill({
         isDragging && "opacity-40 border-dashed",
       )}
     >
-      <span>index: {index}</span>
       <MemberPillContent member={member} />
     </div>
   );

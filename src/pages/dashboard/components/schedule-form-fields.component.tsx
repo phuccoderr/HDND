@@ -6,13 +6,11 @@ import { TextareaField } from "@/components/textarea-field.component";
 import { CalenderField } from "@/components/calender-field.component";
 import { RadioField } from "@/components/radio-field.component";
 import { CheckboxField } from "@/components/checkbox-field.component";
-import {
-  scheduleColors,
-  type ScheduleFormValues,
-} from "./schedule-form.schema";
+import { type ScheduleFormValues } from "./schedule-form.schema";
 import { ComboboxField } from "@/components/combobox-field.component";
 import { useEmployeesQuery } from "@/apis/employee.api";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { COLOR_SOFT } from "@/constants/colors-soft.const";
 
 type Props = { control: Control<ScheduleFormValues> };
 
@@ -64,10 +62,10 @@ export const ScheduleFormFields = ({ control }: Props) => {
           label="Màu sắc"
           name="color"
           control={control}
-          items={scheduleColors.map((color) => color.key)}
+          items={COLOR_SOFT.map((color) => color.key)}
           className="flex gap-3"
         >
-          {scheduleColors.map((item) => (
+          {COLOR_SOFT.map((item) => (
             <RadioGroupItem
               value={item.key}
               key={item.key}
