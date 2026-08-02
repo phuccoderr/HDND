@@ -188,6 +188,41 @@ Từ ngày ${fromDateStr} đến ngày ${toDateStr}`;
     }
   }
 
+  const lastRowNumber = sheet.lastRow ? sheet.lastRow.number : 0;
+  const signatureTitleRow = lastRowNumber + 5; // Cách dữ liệu bảng 3 dòng cho đẹp
+
+  const titleRange = `F${signatureTitleRow}:G${signatureTitleRow + 1}`;
+  sheet.mergeCells(titleRange);
+
+  const titleCell = sheet.getCell(`F${signatureTitleRow}`);
+  titleCell.value = "Cán bộ lập danh sách";
+  titleCell.font = {
+    name: "Times New Roman",
+    size: 14,
+    bold: true,
+  };
+  titleCell.alignment = {
+    vertical: "middle",
+    horizontal: "center",
+  };
+
+  // 3. Tên "Thiếu tá Vũ Quốc Ca" (Để trống khoảng 3-4 dòng làm khoảng ký tên)
+  const nameStartRow = signatureTitleRow + 7;
+  const nameRange = `F${nameStartRow}:G${nameStartRow + 2}`;
+  sheet.mergeCells(nameRange);
+
+  const nameCell = sheet.getCell(`F${nameStartRow}`);
+  nameCell.value = "Thiếu tá Vũ Quốc Ca";
+  nameCell.font = {
+    name: "Times New Roman",
+    size: 14,
+    bold: true,
+  };
+  nameCell.alignment = {
+    vertical: "middle",
+    horizontal: "center",
+  };
+
   const buffer = await workbook.xlsx.writeBuffer();
   const blob = new Blob([buffer], {
     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

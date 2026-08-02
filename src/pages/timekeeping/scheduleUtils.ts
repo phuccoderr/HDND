@@ -1,6 +1,7 @@
 import type { Schedule } from "@/apis/schedules.api";
 import type { ScheduleRow, ScheduleWeek } from "./schedule";
 import type { Employee } from "@/apis/employee.api";
+import { getEmployeeMonthlyEvents } from "./components/export-emp-schedule-word.component";
 
 /**
  * Roster row order, top to bottom, exactly as printed in the source sheet:
@@ -228,4 +229,25 @@ export function removeEmployeeFromCell(
       };
     })
     .filter((e) => e.is_all_day || e.employees.length > 0);
+}
+
+export function getEmployeeMonthlyBreakdown(
+  schedules: Schedule[],
+  employeeId: number,
+  year: number,
+  month1to12: number,
+): { dateKey: string; events: Schedule[] }[] {
+  const grouped = getEmployeeMonthlyEvents(
+    schedules,
+    employeeId,
+    year,
+    month1to12,
+  );
+  const byDate = new Map(grouped.map((g) => [g.dateKey, g.events]));
+
+  const daysInMonth = new Date(Date.UTC(year, month1to12, 0)).getUTCDate();
+  return Array.from({ length: daysInMonth }, (_, i) => {
+    const dateKey = `${year}-${pad2(month1to12)}-${pad2(i + 1)}`;
+    return { dateKey, events: byDate.get(dateKey) ?? [] };
+  });
 }

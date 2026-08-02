@@ -29,7 +29,7 @@ export function formatHourRangeVn(startIso: string, endIso: string): string {
   return `Từ ${pad2(startHour)} giờ đến ${pad2(endHour)} giờ`;
 }
 
-function getEmployeeMonthlyEvents(
+export function getEmployeeMonthlyEvents(
   schedules: Schedule[],
   employeeId: number,
   year: number,
