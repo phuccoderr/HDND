@@ -1,11 +1,14 @@
 import type { Employee } from "@/apis/employee.api";
+import type { Schedule } from "@/apis/schedules.api";
 import { EMPLOYEE_RANK_LABELS } from "@/pages/users/components/employee-form.schema";
 import { ExcelHelper } from "@/utils/excel.util";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import { dateKeyOf } from "../scheduleUtils";
 
 export const exportMoneyExcel = async (
   employees: Employee[],
+  schedules: Schedule[],
   month: number,
   year: number,
 ) => {
@@ -19,6 +22,34 @@ export const exportMoneyExcel = async (
   const sheet = workbook.addWorksheet(`Thang ${month}-${year}`, {
     views: [{ state: "frozen", ySplit: 0, xSplit: 1 }],
   });
+
+  const scheduleCountByEmployeeAndDay = new Map<string, number>();
+
+  for (const schedule of schedules) {
+    if (schedule.is_all_day) continue;
+
+    const dateKey = dateKeyOf(schedule.start_datetime);
+    for (const emp of schedule.employees) {
+      const key = `${emp.id}|${dateKey}`;
+      scheduleCountByEmployeeAndDay.set(
+        key,
+        (scheduleCountByEmployeeAndDay.get(key) ?? 0) + 1,
+      );
+    }
+  }
+
+  const eligibleDaysByEmployee = new Map<number, Set<string>>();
+
+  for (const [key, count] of scheduleCountByEmployeeAndDay) {
+    if (count >= 2) {
+      const [employeeIdStr, dateKey] = key.split("|");
+      const employeeId = Number(employeeIdStr);
+
+      const set = eligibleDaysByEmployee.get(employeeId) ?? new Set<string>();
+      set.add(dateKey);
+      eligibleDaysByEmployee.set(employeeId, set);
+    }
+  }
 
   sheet.mergeCells("A1:D1");
   sheet.getCell("A1").value = "PHÒNG CẢNH SÁT CƠ ĐỘNG";
@@ -144,7 +175,8 @@ export const exportMoneyExcel = async (
     row.getCell(9).alignment = ExcelHelper.createAlignment();
     row.getCell(9).border = ExcelHelper.createBorder();
 
-    row.getCell(10).value = 31;
+    const daysCount = eligibleDaysByEmployee.get(emp.id)?.size ?? 0;
+    row.getCell(10).value = daysCount;
     row.getCell(10).font = ExcelHelper.createFont({ size: 8 });
     row.getCell(10).alignment = ExcelHelper.createAlignment();
     row.getCell(10).border = ExcelHelper.createBorder();

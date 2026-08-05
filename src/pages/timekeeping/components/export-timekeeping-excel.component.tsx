@@ -1,11 +1,14 @@
 import type { Employee } from "@/apis/employee.api";
+import type { Schedule } from "@/apis/schedules.api";
 import { EMPLOYEE_RANK_LABELS } from "@/pages/users/components/employee-form.schema";
 import { ExcelHelper } from "@/utils/excel.util";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import { dateKeyOf } from "../scheduleUtils";
 
 export const exportTimeKeepingExcel = async (
   employees: Employee[],
+  schedules: Schedule[],
   month: number,
   year: number,
 ) => {
@@ -13,6 +16,21 @@ export const exportTimeKeepingExcel = async (
   const toDay = new Date();
   workbook.creator = "Timekeeping";
   workbook.created = toDay;
+
+  const scheduleCountByEmployeeAndDay = new Map<string, number>();
+
+  for (const schedule of schedules) {
+    if (schedule.is_all_day) continue;
+
+    const dateKey = dateKeyOf(schedule.start_datetime);
+    for (const emp of schedule.employees) {
+      const key = `${emp.id}|${dateKey}`;
+      scheduleCountByEmployeeAndDay.set(
+        key,
+        (scheduleCountByEmployeeAndDay.get(key) ?? 0) + 1,
+      );
+    }
+  }
 
   const dayNamesShort = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
   const daysInMonth = new Date(year, month, 0).getDate();
@@ -102,7 +120,7 @@ export const exportTimeKeepingExcel = async (
     cellDayOfWeek.value = dayOfWeekName;
     cellDayOfWeek.font = {
       name: "Times New Roman",
-      size: 8,
+      size: 6,
       bold: true,
       color: { argb: isWeekend ? "FFFF0000" : "FF000000" },
     };
@@ -176,8 +194,13 @@ export const exportTimeKeepingExcel = async (
 
     for (let day = 1; day <= daysInMonth; day++) {
       const colIdx = startCol + day - 1;
+      const dateKey = `${year}-${formattedMonth}-${String(day).padStart(2, "0")}`;
+
       const cell = row.getCell(colIdx);
-      cell.value = "X";
+      const key = `${emp.id}|${dateKey}`;
+      const dayCount = scheduleCountByEmployeeAndDay.get(key) ?? 0;
+
+      cell.value = dayCount > 1 ? "X" : "";
       cell.font = ExcelHelper.createFont({ size: 8 });
       cell.alignment = ExcelHelper.createAlignment();
       cell.border = ExcelHelper.createBorder();

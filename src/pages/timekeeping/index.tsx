@@ -34,13 +34,22 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { exportTimeKeepingExcel } from "./components/export-timekeeping-excel.component";
 import { exportMoneyExcel } from "./components/export-money-excel";
+import { DateHelper } from "@/utils/date.util";
 
 const TimekeepingPage = () => {
-  const { data } = useSchedulesQuery({});
   const { data: employeesData } = useEmployeesQuery();
   const today = new Date();
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth() + 1);
+  const { data } = useSchedulesQuery({
+    start_time: DateHelper.getDateWithString({
+      date: new Date(Date.UTC(currentYear, currentMonth - 1, 1)),
+    }).dateTimeUTC,
+    end_time: DateHelper.getDateWithString({
+      date: new Date(currentYear, currentMonth),
+      hours: 24,
+    }).dateTimeUTC,
+  });
   const [schedules, setSchedules] = useState<Schedule[]>([]);
 
   const weeks = useMemo(
@@ -50,6 +59,9 @@ const TimekeepingPage = () => {
 
   useEffect(() => {
     if (data) {
+      console.log({
+        data,
+      });
       setSchedules(data);
     }
   }, [data]);
@@ -83,13 +95,19 @@ const TimekeepingPage = () => {
   const handleExportTimekeepingExcel = async () => {
     await exportTimeKeepingExcel(
       employeesData ?? [],
+      schedules,
       currentMonth,
       currentYear,
     );
   };
 
   const handleExportMoneyExcel = async () => {
-    await exportMoneyExcel(employeesData ?? [], currentMonth, currentYear);
+    await exportMoneyExcel(
+      employeesData ?? [],
+      schedules,
+      currentMonth,
+      currentYear,
+    );
   };
 
   const handleExportEmployeeWord = async (employee: Employee) => {
