@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { exportTimeKeepingExcel } from "./components/export-timekeeping-excel.component";
+import { exportMoneyExcel } from "./components/export-money-excel";
 
 const TimekeepingPage = () => {
   const { data } = useSchedulesQuery({});
@@ -85,6 +86,10 @@ const TimekeepingPage = () => {
       currentMonth,
       currentYear,
     );
+  };
+
+  const handleExportMoneyExcel = async () => {
+    await exportMoneyExcel(employeesData ?? [], currentMonth, currentYear);
   };
 
   const handleExportEmployeeWord = async (employee: Employee) => {
@@ -148,6 +153,15 @@ const TimekeepingPage = () => {
             aria-label="Tháng sau"
           >
             <ChevronRight />
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex gap-2 items-center"
+            onClick={handleExportMoneyExcel}
+          >
+            <FaRegFileExcel />
+            <Label>Tiền ĐL</Label>
           </Button>
           <Button
             size="sm"

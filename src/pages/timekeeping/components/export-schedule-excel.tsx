@@ -7,15 +7,7 @@ import {
   weekdayLabel,
 } from "../scheduleUtils";
 import type { ScheduleWeek } from "../schedule";
-
-const BORDER = { style: "thin" as const, color: { argb: "FF000000" } };
-
-const THIN_BORDER = {
-  top: BORDER,
-  left: BORDER,
-  bottom: BORDER,
-  right: BORDER,
-};
+import { ExcelHelper } from "@/utils/excel.util";
 
 export async function exportScheduleToExcel(
   weeks: ScheduleWeek[],
@@ -112,8 +104,10 @@ Từ ngày ${fromDateStr} đến ngày ${toDateStr}`;
 
   // Cột: "Ca trực" + 7 ngày trong tuần
   sheet.columns = [
-    { width: 12 },
-    ...Array.from({ length: 7 }, () => ({ width: 14.5 })),
+    { width: ExcelHelper.toExcelWidth(12) },
+    ...Array.from({ length: 7 }, () => ({
+      width: ExcelHelper.toExcelWidth(14.5),
+    })),
   ];
   for (const week of weeks) {
     // ----- Tiêu đề tuần -----
@@ -145,7 +139,7 @@ Từ ngày ${fromDateStr} đến ngày ${toDateStr}`;
         vertical: "middle",
         wrapText: true,
       };
-      cell.border = THIN_BORDER;
+      cell.border = ExcelHelper.createBorder();
     });
     headerRow.height = 30;
 
@@ -162,7 +156,7 @@ Từ ngày ${fromDateStr} đến ngày ${toDateStr}`;
         vertical: "middle",
         wrapText: true,
       };
-      dataRow.getCell(1).border = THIN_BORDER;
+      dataRow.getCell(1).border = ExcelHelper.createBorder();
 
       week.dates.forEach((dateKey, colIdx) => {
         const events = row.cellsByDate[dateKey] ?? [];
@@ -171,7 +165,7 @@ Từ ngày ${fromDateStr} đến ngày ${toDateStr}`;
 
         if (employees.length === 0) {
           cell.alignment = { horizontal: "center", vertical: "middle" };
-          cell.border = THIN_BORDER;
+          cell.border = ExcelHelper.createBorder();
         } else {
           cell.value = employees.map((e) => e.full_name).join("\n");
           cell.alignment = {
@@ -180,7 +174,7 @@ Từ ngày ${fromDateStr} đến ngày ${toDateStr}`;
             wrapText: true,
           };
           cell.font = { name: "Times New Roman", size: 8 };
-          cell.border = THIN_BORDER;
+          cell.border = ExcelHelper.createBorder();
         }
       });
 
