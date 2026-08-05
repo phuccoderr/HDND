@@ -1,7 +1,6 @@
 import type { Schedule } from "@/apis/schedules.api";
 import type { ScheduleRow, ScheduleWeek } from "./schedule";
 import type { Employee } from "@/apis/employee.api";
-import { getEmployeeMonthlyEvents } from "./components/export-emp-schedule-word.component";
 
 /**
  * Roster row order, top to bottom, exactly as printed in the source sheet:
@@ -231,6 +230,45 @@ export function removeEmployeeFromCell(
     .filter((e) => e.is_all_day || e.employees.length > 0);
 }
 
+const HOUR_ORDER = [6, 8, 10, 12, 14, 16, 18, 20, 22, 0, 2, 4];
+
+function hourRank(isoString: string): number {
+  const h = hourOf(isoString);
+  const idx = HOUR_ORDER.indexOf(h);
+  // phòng trường hợp giờ lẻ không nằm trong slot chuẩn -> đẩy xuống cuối theo giá trị giờ
+  return idx === -1 ? HOUR_ORDER.length + h : idx;
+}
+
+export function getEmployeeMonthlyEvents(
+  schedules: Schedule[],
+  employeeId: number,
+  year: number,
+  month1to12: number,
+): { dateKey: string; events: Schedule[] }[] {
+  const filtered = schedules.filter(
+    (e) =>
+      !e.is_all_day &&
+      e.employees.some((emp) => emp.id === employeeId) &&
+      isSameMonth(dateKeyOf(e.start_datetime), year, month1to12),
+  );
+
+  const grouped = new Map<string, Schedule[]>();
+  for (const e of filtered) {
+    const key = dateKeyOf(e.start_datetime);
+    if (!grouped.has(key)) grouped.set(key, []);
+    grouped.get(key)!.push(e);
+  }
+
+  return Array.from(grouped.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([dateKey, events]) => ({
+      dateKey,
+      events: [...events].sort(
+        (a, b) => hourRank(a.start_datetime) - hourRank(b.start_datetime),
+      ),
+    }));
+}
+
 export function getEmployeeMonthlyBreakdown(
   schedules: Schedule[],
   employeeId: number,
@@ -250,4 +288,10 @@ export function getEmployeeMonthlyBreakdown(
     const dateKey = `${year}-${pad2(month1to12)}-${pad2(i + 1)}`;
     return { dateKey, events: byDate.get(dateKey) ?? [] };
   });
+}
+
+export function formatHourRangeVn(startIso: string, endIso: string): string {
+  const startHour = hourOf(startIso);
+  const endHour = hourOf(endIso);
+  return `Từ ${pad2(startHour)} giờ đến ${pad2(endHour)} giờ`;
 }

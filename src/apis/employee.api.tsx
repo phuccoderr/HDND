@@ -9,6 +9,21 @@ export type Employee = {
   room: "ROOM1" | "ROOM3";
   order: number;
   color: string;
+  rank:
+    | "BINH_NHI"
+    | "BINH_NHAT"
+    | "HA_SI"
+    | "TRUNG_SI"
+    | "THUONG_SI"
+    | "THIEU_UY"
+    | "TRUNG_UY"
+    | "THUONG_UY"
+    | "DAI_UY"
+    | "THIEU_TA"
+    | "TRUNG_TA"
+    | "THUONG_TA"
+    | "DAI_TA";
+  position: string;
 };
 
 const employeesQueryKey = ["employees"] as const;
@@ -24,7 +39,37 @@ export const useEmployeesQuery = () => {
         throw error;
       }
 
-      return (data as Employee[]) ?? [];
+      const employees = (data as Employee[]) ?? [];
+
+      const rankPriority: Record<string, number> = {
+        BINH_NHI: 1,
+        BINH_NHAT: 2,
+        HA_SI: 3,
+        TRUNG_SI: 4,
+        THUONG_SI: 5,
+        THIEU_UY: 6,
+        TRUNG_UY: 7,
+        THUONG_UY: 8,
+        DAI_UY: 9,
+        THIEU_TA: 10,
+        TRUNG_TA: 11,
+        THUONG_TA: 12,
+        DAI_TA: 13,
+        THIEU_TUONG: 14,
+        TRUNG_TUONG: 15,
+        THUONG_TUONG: 16,
+        DAI_TUONG: 17,
+      };
+
+      return employees.sort((a, b) => {
+        // 2. Ưu tiên RANK (Cấp bậc cao xuống thấp)
+        const rankDiff =
+          (rankPriority[b.rank] || 0) - (rankPriority[a.rank] || 0);
+        if (rankDiff !== 0) return rankDiff;
+
+        // 3. Ưu tiên ORDER
+        return (a.order || 0) - (b.order || 0);
+      });
     },
   });
 };

@@ -39,7 +39,7 @@ export const INITIAL_DAY_SHIFTS: Shift[] = [
   { emps: [], start: "10:00", end: "12:00", id: "3" },
   { emps: [], start: "12:00", end: "14:00", id: "4" },
   { emps: [], start: "14:00", end: "16:00", id: "5" },
-  { emps: [], start: "16:00", end: "17:59", id: "6" },
+  { emps: [], start: "16:00", end: "18:00", id: "6" },
 ];
 
 export const INITIAL_NIGHT_SHIFTS: Shift[] = [
@@ -137,12 +137,16 @@ const SchedulePanel = () => {
     }
   };
 
-  const combineShiftDateTime = (date: Date | undefined, time: string) => {
+  const combineShiftDateTime = (
+    date: Date | undefined,
+    time: string,
+    period: "day" | "night",
+  ) => {
     const targetDate = date ? date : new Date();
     const cleanTimeStr = time === "24:00" ? "00:00" : time;
     const [hours, minutes] = cleanTimeStr.split(":").map(Number);
 
-    const isNextDay = hours < 18;
+    const isNextDay = period === "day" ? true : hours < 18;
 
     const baseDate = isNextDay ? addDays(targetDate, 1) : new Date(targetDate);
 
@@ -162,8 +166,8 @@ const SchedulePanel = () => {
       return {
         title: `Ca trực: ${day.start} - ${day.end}`,
         color: "blue",
-        start_datetime: combineShiftDateTime(date, day.start),
-        end_datetime: combineShiftDateTime(date, day.end),
+        start_datetime: combineShiftDateTime(date, day.start, "day"),
+        end_datetime: combineShiftDateTime(date, day.end, "day"),
         note: `ca trực chốt`,
         is_all_day: false,
         is_updated: true,
@@ -175,8 +179,8 @@ const SchedulePanel = () => {
       return {
         title: `Ca trực: ${day.start} - ${day.end}`,
         color: "blue",
-        start_datetime: combineShiftDateTime(date, day.start),
-        end_datetime: combineShiftDateTime(date, day.end),
+        start_datetime: combineShiftDateTime(date, day.start, "night"),
+        end_datetime: combineShiftDateTime(date, day.end, "night"),
         note: `ca trực chốt`,
         is_all_day: false,
         is_updated: true,

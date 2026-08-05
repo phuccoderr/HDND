@@ -1,10 +1,9 @@
 import type { Schedule } from "@/apis/schedules.api";
 import {
-  dateKeyOf,
+  formatHourRangeVn,
   formatVnDate,
+  getEmployeeMonthlyEvents,
   hourOf,
-  isSameMonth,
-  pad2,
 } from "../scheduleUtils";
 import {
   Document,
@@ -23,42 +22,6 @@ import {
 import { saveAs } from "file-saver";
 import type { Employee } from "@/apis/employee.api";
 
-export function formatHourRangeVn(startIso: string, endIso: string): string {
-  const startHour = hourOf(startIso);
-  const endHour = hourOf(endIso);
-  return `Từ ${pad2(startHour)} giờ đến ${pad2(endHour)} giờ`;
-}
-
-export function getEmployeeMonthlyEvents(
-  schedules: Schedule[],
-  employeeId: number,
-  year: number,
-  month1to12: number,
-): { dateKey: string; events: Schedule[] }[] {
-  const filtered = schedules.filter(
-    (e) =>
-      !e.is_all_day &&
-      e.employees.some((emp) => emp.id === employeeId) &&
-      isSameMonth(dateKeyOf(e.start_datetime), year, month1to12),
-  );
-
-  const grouped = new Map<string, Schedule[]>();
-  for (const e of filtered) {
-    const key = dateKeyOf(e.start_datetime);
-    if (!grouped.has(key)) grouped.set(key, []);
-    grouped.get(key)!.push(e);
-  }
-
-  return Array.from(grouped.entries())
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([dateKey, events]) => ({
-      dateKey,
-      events: [...events].sort((a, b) =>
-        a.start_datetime.localeCompare(b.start_datetime),
-      ),
-    }));
-}
-
 const CELL_BORDER = { style: BorderStyle.SINGLE, size: 4, color: "000000" };
 const ALL_BORDERS = {
   top: CELL_BORDER,
@@ -73,7 +36,8 @@ function buildResultText(event: Schedule): string {
   const isDayShift = startHour >= 6 && startHour < 18;
 
   if (isDayShift) {
-    return `Canh gác bảo vệ mục tiêu, kiểm soát người và phương tiện ra vào trụ sở mục tiêu 16 lượt, trong ca trực tình hình ổn định`;
+    const turns = Math.floor(Math.random() * (24 - 12 + 1)) + 12;
+    return `Canh gác bảo vệ mục tiêu, kiểm soát người và phương tiện ra vào trụ sở mục tiêu ${turns} lượt, trong ca trực tình hình ổn định`;
   }
   return `Canh gác bảo vệ mục tiêu, trong ca trực tình hình ổn định`;
 }

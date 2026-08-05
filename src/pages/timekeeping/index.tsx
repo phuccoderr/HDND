@@ -32,6 +32,7 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { exportTimeKeepingExcel } from "./components/export-timekeeping-excel.component";
 
 const TimekeepingPage = () => {
   const { data } = useSchedulesQuery({});
@@ -76,6 +77,14 @@ const TimekeepingPage = () => {
 
   const handleExportExcel = async () => {
     await exportScheduleToExcel(weeks, currentMonth, currentYear);
+  };
+
+  const handleExportTimekeepingExcel = async () => {
+    await exportTimeKeepingExcel(
+      employeesData ?? [],
+      currentMonth,
+      currentYear,
+    );
   };
 
   const handleExportEmployeeWord = async (employee: Employee) => {
@@ -140,7 +149,15 @@ const TimekeepingPage = () => {
           >
             <ChevronRight />
           </Button>
-
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex gap-2 items-center"
+            onClick={handleExportTimekeepingExcel}
+          >
+            <FaRegFileExcel />
+            <Label>Chấm công</Label>
+          </Button>
           <Button
             size="sm"
             variant="outline"
@@ -179,8 +196,8 @@ const TimekeepingPage = () => {
                 Bảng phân ca theo tuần, mỗi ô hiển thị nhân sự trực trong khung
                 giờ 2 tiếng.
               </CardDescription>
-              <CardContent className="p-0">
-                <ScrollArea className="h-screen whitespace-nowrap">
+              <ScrollArea className="h-screen whitespace-nowrap">
+                <CardContent className="p-0">
                   {weeks.map((week) => {
                     // const hasAnyNotice = week.dates.some(
                     //   (d) => week.allDayNotices[d]?.length,
@@ -218,7 +235,7 @@ const TimekeepingPage = () => {
                               <tr>
                                 <th className="sticky left-0 z-10 w-16 border border-border p-1 text-left text-xs font-semibold uppercase tracking-wide">
                                   Ca trực
-                                </th>{" "}
+                                </th>
                                 {week.dates.map((dateKey) => {
                                   const inMonth = isSameMonth(
                                     dateKey,
@@ -356,8 +373,8 @@ const TimekeepingPage = () => {
                       </div>
                     );
                   })}
-                </ScrollArea>
-              </CardContent>
+                </CardContent>
+              </ScrollArea>
             </CardHeader>
           </Card>
         </ResizablePanel>

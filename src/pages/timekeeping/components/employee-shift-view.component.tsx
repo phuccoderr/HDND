@@ -5,11 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import type { Employee } from "@/apis/employee.api";
 import type { Schedule } from "@/apis/schedules.api";
 import {
+  formatHourRangeVn,
   formatVnDate,
   getEmployeeMonthlyBreakdown,
   weekdayLabel,
 } from "../scheduleUtils";
-import { formatHourRangeVn } from "./export-emp-schedule-word.component";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import SearchableSelect from "@/components/searchable-select.component";
 import {
