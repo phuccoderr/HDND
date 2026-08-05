@@ -33,8 +33,8 @@ const ScheduleCaptureUI = () => {
     start_time: DateHelper.getDateWithString({ hours: 18 }).dateTimeUTC,
     end_time: DateHelper.getDateWithString({
       date: addDays(toDay, 1),
-      hours: 17,
-      minutes: 59,
+      hours: 18,
+      minutes: 0,
     }).dateTimeUTC,
   });
 
@@ -53,8 +53,8 @@ const ScheduleCaptureUI = () => {
   }).dateObject;
   const endNightTime = DateHelper.getDateWithString({
     date: addDays(toDay, 1),
-    hours: 17,
-    minutes: 59,
+    hours: 18,
+    minutes: 0,
   }).dateObject;
 
   const dayShifts = schedules?.filter((schedule) => {
@@ -233,13 +233,11 @@ const ScheduleCaptureUI = () => {
                         }).hourString
                       }
                       {" - "}
-                      {DateHelper.getDateWithString({
-                        date: shift.end_datetime,
-                      }).hourString == "17"
-                        ? "18"
-                        : DateHelper.getDateWithString({
-                            date: shift.end_datetime,
-                          }).hourString}
+                      {
+                        DateHelper.getDateWithString({
+                          date: shift.end_datetime,
+                        }).hourString
+                      }
                       :{" "}
                       {shift.employees.map(
                         (emp) => `${emp.full_name.split(" ").pop()}, `,
