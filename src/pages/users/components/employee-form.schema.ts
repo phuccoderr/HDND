@@ -25,9 +25,11 @@ export const employeeFormSchema = z.object({
   type: z.enum(["EMPLOYEE", "COMMAND", "DUTY"], {
     message: "Vui lòng chọn loại nhân viên",
   }),
-  room: z.enum(["ROOM1", "ROOM3"], {
-    message: "Vui lòng chọn phòng nhân viên",
-  }),
+  room: z
+    .enum(["ROOM1", "ROOM3"], {
+      message: "Vui lòng chọn phòng nhân viên",
+    })
+    .nullable(),
   order: z.number(),
   color: z.string(),
   rank: z.enum([

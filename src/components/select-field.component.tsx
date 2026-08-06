@@ -12,6 +12,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import type { ReactNode } from "react";
+
+type SelectItemType = { label: string; value: string; [key: string]: any };
 
 type Props<T extends FieldValues> = {
   control: Control<T>;
@@ -19,7 +22,8 @@ type Props<T extends FieldValues> = {
   label: string;
   htmlFor: string;
   placeholder: string;
-  items: { label: string; value: string }[];
+  items: SelectItemType[];
+  renderItem?: (item: SelectItemType) => ReactNode;
 };
 
 export const SelectField = <T extends FieldValues>({
@@ -29,6 +33,7 @@ export const SelectField = <T extends FieldValues>({
   htmlFor,
   placeholder,
   items,
+  renderItem,
 }: Props<T>) => (
   <Controller
     name={name}
@@ -43,7 +48,7 @@ export const SelectField = <T extends FieldValues>({
           <SelectContent>
             {items.map((item) => (
               <SelectItem key={item.value} value={item.value}>
-                {item.label}
+                {renderItem ? renderItem(item) : item.label}
               </SelectItem>
             ))}
           </SelectContent>

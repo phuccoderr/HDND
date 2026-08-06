@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import CUEmployee from "./components/c-u-employee.component";
 import {
+  EMPLOYEE_RANK_LABELS,
   employeeRooms,
   employeeTypes,
 } from "./components/employee-form.schema";
@@ -115,6 +116,22 @@ const UserPage = () => {
         accessorKey: "full_name",
         sortable: true,
         cell: (row) => <span>{row.full_name}</span>,
+      },
+      {
+        id: "rank",
+        header: "Cấp bậc",
+        accessorKey: "rank",
+        sortable: true,
+        cell: (row) => (
+          <span>{EMPLOYEE_RANK_LABELS[row.rank] ?? row.rank}</span>
+        ),
+      },
+      {
+        id: "position",
+        header: "Chức vụ",
+        accessorKey: "position",
+        sortable: true,
+        cell: (row) => <span>{row.position}</span>,
       },
       {
         id: "type",

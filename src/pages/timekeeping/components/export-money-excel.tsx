@@ -171,6 +171,7 @@ export const exportMoneyExcel = async (
     row.getCell(8).border = ExcelHelper.createBorder();
 
     row.getCell(9).value = 63000;
+    row.getCell(9).numFmt = "#,##0";
     row.getCell(9).font = ExcelHelper.createFont({ size: 8 });
     row.getCell(9).alignment = ExcelHelper.createAlignment();
     row.getCell(9).border = ExcelHelper.createBorder();
@@ -184,6 +185,7 @@ export const exportMoneyExcel = async (
     row.getCell(11).value = {
       formula: `I${currentRow}*J${currentRow}`,
     };
+    row.getCell(11).numFmt = "#,##0";
     row.getCell(11).font = ExcelHelper.createFont({ size: 8 });
     row.getCell(11).alignment = ExcelHelper.createAlignment();
     row.getCell(11).border = ExcelHelper.createBorder();
@@ -207,6 +209,7 @@ export const exportMoneyExcel = async (
 
   const endRow = currentRow - 1;
   const sumCell = sheet.getCell(`K${currentRow}`);
+  sumCell.numFmt = "#,##0";
   sumCell.value = { formula: `SUM(K${startRow}:K${endRow})` };
   sumCell.font = ExcelHelper.createFont({ size: 8 });
   sumCell.alignment = ExcelHelper.createAlignment();
@@ -257,5 +260,5 @@ export const exportMoneyExcel = async (
   const blob = new Blob([buffer], {
     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   });
-  saveAs(blob, `cham-cong-thang-${month}-${year}.xlsx`);
+  saveAs(blob, `tien-dinh-luong-${month}-${year}.xlsx`);
 };

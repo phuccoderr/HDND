@@ -80,6 +80,9 @@ const CUEmployee = ({ open, onOpenChange, editingEmployee }: Props) => {
         type: editingEmployee.type,
         room: editingEmployee.room,
         order: editingEmployee.order,
+        color: editingEmployee.color,
+        rank: editingEmployee.rank,
+        position: editingEmployee.position,
       });
     }
   }, [editingEmployee]);

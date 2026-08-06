@@ -6,7 +6,7 @@ export type Employee = {
   id: number;
   full_name: string;
   type: "EMPLOYEE" | "COMMAND" | "DUTY";
-  room: "ROOM1" | "ROOM3";
+  room: "ROOM1" | "ROOM3" | null;
   order: number;
   color: string;
   rank:
