@@ -34,17 +34,13 @@ import {
   type ScheduleFormValues,
 } from "./schedule-form.schema";
 import { ScheduleFormFields } from "./schedule-form-fields.component";
-import {
-  employeesByScheduleQueryKey,
-  fetchEmployeesByScheduleFromDb,
-  useUpdateEmployeesBySchedule,
-} from "@/apis/employees_schedules.api";
-import { queryClient } from "@/lib/query-client";
+import { useUpdateEmployeesBySchedule } from "@/apis/employees_schedules.api";
 
 type Props = {
   schedule: Schedule | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  refetch: () => void;
 };
 
 const scheduleToFormValues = (schedule: Schedule): ScheduleFormValues => ({
@@ -58,7 +54,7 @@ const scheduleToFormValues = (schedule: Schedule): ScheduleFormValues => ({
   is_updated: schedule.is_updated,
 });
 
-const UpdateSchedule = ({ schedule, open, onOpenChange }: Props) => {
+const UpdateSchedule = ({ schedule, open, onOpenChange, refetch }: Props) => {
   const { mutateAsync: mutateUpdate, isPending: updateIsPending } =
     useUpdateSchedule();
 
@@ -104,21 +100,7 @@ const UpdateSchedule = ({ schedule, open, onOpenChange }: Props) => {
       });
       step = "refresh";
 
-      const nextEmployees = await queryClient.fetchQuery({
-        queryKey: employeesByScheduleQueryKey(schedule.id),
-        queryFn: () => fetchEmployeesByScheduleFromDb(schedule.id),
-      });
-      const newUpdatedSchedule = {
-        ...schedule,
-        ...scheduleBody,
-        employees: nextEmployees,
-      };
-
-      setSchedules((prev) =>
-        prev.map((s) =>
-          s.id === newUpdatedSchedule.id ? { ...s, ...newUpdatedSchedule } : s,
-        ),
-      );
+      refetch();
       toast.success("Cập nhật sự kiện thành công");
       onOpenChange(false);
     } catch (error) {

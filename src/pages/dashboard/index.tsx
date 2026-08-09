@@ -44,7 +44,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { getColorMap } from "@/constants/colors-soft.const";
 
 const DashboardPage = () => {
-  const { data: schedules } = useSchedulesQuery({});
+  const { data: schedules, refetch: refetchSchedules } = useSchedulesQuery({});
   const { mutateAsync: mutateUpdateSchedule } = useUpdateSchedule();
   const containerRef = useRef<HTMLDivElement>(null);
   const calendarRef = useRef<FullCalendar>(null);
@@ -235,7 +235,7 @@ const DashboardPage = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <CreateSchedule />
+          <CreateSchedule refetch={refetchSchedules} />
         </div>
       </div>
       <FullCalendar
@@ -330,6 +330,7 @@ const DashboardPage = () => {
         schedule={selectedSchedule}
         open={isUpdateOpen}
         onOpenChange={setIsUpdateOpen}
+        refetch={refetchSchedules}
       />
     </div>
   );

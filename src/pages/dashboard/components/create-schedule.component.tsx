@@ -18,24 +18,16 @@ import {
 } from "./schedule-form.schema";
 import { ScheduleFormFields } from "./schedule-form-fields.component";
 import { toast } from "sonner";
-import {
-  employeesByScheduleQueryKey,
-  fetchEmployeesByScheduleFromDb,
-  useInsertScheduleToEmployees,
-} from "@/apis/employees_schedules.api";
-import {
-  setSchedules,
-  useInsertSchedule,
-  type Schedule,
-} from "@/apis/schedules.api";
-import { queryClient } from "@/lib/query-client";
+import { useInsertScheduleToEmployees } from "@/apis/employees_schedules.api";
+import { useInsertSchedule } from "@/apis/schedules.api";
 
-const CreateSchedule = () => {
-  const {
-    data,
-    mutateAsync: mutateInsert,
-    isPending: insertIsPending,
-  } = useInsertSchedule();
+type Props = {
+  refetch: () => void;
+};
+
+const CreateSchedule = ({ refetch }: Props) => {
+  const { mutateAsync: mutateInsert, isPending: insertIsPending } =
+    useInsertSchedule();
   const { mutateAsync: mutateInsertScheduleToEmployees } =
     useInsertScheduleToEmployees();
   const [isOpen, setIsOpen] = useState(false);
@@ -53,10 +45,9 @@ const CreateSchedule = () => {
   const handleSubmit = async (values: ScheduleFormValues) => {
     const { employee_ids, ...schedule } = values;
     try {
-      await mutateInsert(schedule);
-      if (!data) return;
+      const createdSchedule = await mutateInsert(schedule);
+      if (!createdSchedule) return;
 
-      const createdSchedule = data;
       const junctionData = employee_ids.map((emp_id) => ({
         schedule_id: createdSchedule.id,
         employee_id: Number(emp_id),
@@ -64,19 +55,10 @@ const CreateSchedule = () => {
 
       await mutateInsertScheduleToEmployees(junctionData);
 
-      const nextEmployees = await queryClient.fetchQuery({
-        queryKey: employeesByScheduleQueryKey(createdSchedule.id),
-        queryFn: () => fetchEmployeesByScheduleFromDb(createdSchedule.id),
-      });
-
-      const mappedSchedule = {
-        ...createdSchedule,
-        employees: nextEmployees,
-      } as Schedule;
-
-      setSchedules([mappedSchedule]);
-      toast.success("Tạo sự kiện thành công");
+      refetch();
+      form.reset();
       setIsOpen(false);
+      toast.success("Tạo sự kiện thành công");
     } catch (error) {
       toast.error("Tạo sự kiện thất bại", {
         description: "Đã có lỗi xảy ra khi lưu vào cơ sở dữ liệu",
