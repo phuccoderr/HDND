@@ -153,7 +153,7 @@ const TimekeepingPage = () => {
       <header className="mb-6 flex items-center justify-between">
         <div>
           <Label className="text-sm lg:text-xl font-bold uppercase">
-            Chấm công định lượng — Tháng {7}/{2026}
+            Chấm công định lượng — Tháng {currentMonth}/{2026}
           </Label>
           <Label className="mt-1 text-xs lg:text-sm text-muted-foreground">
             Tổng hợp chấm công định lượng, bao gồm xuất file báo cáo, danh sách
