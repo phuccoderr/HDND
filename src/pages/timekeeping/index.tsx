@@ -1,4 +1,4 @@
-import { type Schedule, useSchedulesQuery } from "@/apis/schedules.api";
+import { type Schedule } from "@/apis/schedules.api";
 import { useEffect, useMemo, useState } from "react";
 import {
   buildMonthWeeks,
@@ -11,7 +11,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { getColorMap } from "@/constants/colors-soft.const";
 import { useEmployeesQuery, type Employee } from "@/apis/employee.api";
-
 import { Button } from "@/components/ui/button";
 import { exportScheduleToExcel } from "./components/export-schedule-excel";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -34,37 +33,39 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { exportTimeKeepingExcel } from "./components/export-timekeeping-excel.component";
 import { exportMoneyExcel } from "./components/export-money-excel";
-import { DateHelper } from "@/utils/date.util";
+import { useTimekeepingStore } from "@/stores/timekeeping.store";
+
+const STORAGE_KEY = "schedules_data";
 
 const TimekeepingPage = () => {
   const { data: employeesData } = useEmployeesQuery();
   const today = new Date();
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth() + 1);
-  const { data } = useSchedulesQuery({
-    start_time: DateHelper.getDateWithString({
-      date: new Date(Date.UTC(currentYear, currentMonth - 1, 1)),
-    }).dateTimeUTC,
-    end_time: DateHelper.getDateWithString({
-      date: new Date(currentYear, currentMonth),
-      hours: 24,
-    }).dateTimeUTC,
-  });
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const { schedules, setSchedules } = useTimekeepingStore();
 
   const weeks = useMemo(
     () => buildMonthWeeks(schedules, currentYear, currentMonth),
     [schedules, currentYear, currentMonth],
   );
 
+  // Load schedules from localStorage on mount and when month changes
   useEffect(() => {
-    if (data) {
-      console.log({
-        data,
-      });
-      setSchedules(data);
-    }
-  }, [data]);
+    const loadSchedulesFromStorage = () => {
+      try {
+        const storedData = localStorage.getItem(STORAGE_KEY);
+        if (storedData) {
+          const allSchedules = JSON.parse(storedData) as Schedule[];
+          setSchedules(allSchedules);
+        }
+      } catch (error) {
+        console.error("Failed to load schedules from localStorage:", error);
+        setSchedules([]);
+      }
+    };
+
+    loadSchedulesFromStorage();
+  }, []);
 
   const allEmployees: Employee[] = employeesData ?? [];
 
@@ -73,9 +74,13 @@ const TimekeepingPage = () => {
     startHour: number,
     employee: Employee,
   ) => {
-    setSchedules((prev) =>
-      addEmployeeToCell(prev, dateKey, startHour, employee),
+    const newSchedules = addEmployeeToCell(
+      schedules,
+      dateKey,
+      startHour,
+      employee,
     );
+    setSchedules(newSchedules);
   };
 
   const handleRemoveEmployee = (
@@ -83,9 +88,13 @@ const TimekeepingPage = () => {
     startHour: number,
     employeeId: number,
   ) => {
-    setSchedules((prev) =>
-      removeEmployeeFromCell(prev, dateKey, startHour, employeeId),
+    const newSchedules = removeEmployeeFromCell(
+      schedules,
+      dateKey,
+      startHour,
+      employeeId,
     );
+    setSchedules(newSchedules);
   };
 
   const handleExportExcel = async () => {
@@ -199,6 +208,7 @@ const TimekeepingPage = () => {
             <FaRegFileExcel />
             <Label>Định lượng</Label>
           </Button>
+
           <SearchableSelect
             options={allEmployees}
             onChange={handleExportEmployeeWord}

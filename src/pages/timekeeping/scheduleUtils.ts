@@ -84,8 +84,8 @@ export function buildMonthWeeks(
   const daysInMonth = new Date(Date.UTC(year, month1to12, 0)).getUTCDate();
   const lastOfMonth = `${year}-${pad2(month1to12)}-${pad2(daysInMonth)}`;
 
-  const timedEvents = schedules.filter((e) => !e.is_all_day);
-  const allDayEvents = schedules.filter((e) => e.is_all_day);
+  const timedEvents = schedules?.filter((e) => !e.is_all_day);
+  const allDayEvents = schedules?.filter((e) => e.is_all_day);
 
   const weeks: ScheduleWeek[] = [];
   let cursor = mondayOf(firstOfMonth);
