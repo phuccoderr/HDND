@@ -212,7 +212,7 @@ const SchedulePanel = () => {
     }
 
     queryClient.refetchQueries({
-      queryKey: [schedulesQueryKey],
+      queryKey: schedulesQueryKey,
     });
 
     reset();

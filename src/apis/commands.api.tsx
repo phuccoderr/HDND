@@ -13,6 +13,25 @@ export type Command = {
 
 const commandsQueryKey = ["commands"] as const;
 
+export const useCurrentCommandQuery = () => {
+  return useQuery({
+    queryKey: [...commandsQueryKey, "current"],
+    queryFn: async (): Promise<Command | null> => {
+      const now = new Date().toISOString();
+      const { data, error } = await supabaseClient
+        .from("commands")
+        .select("*, employee:employees (*)")
+        .lte("start_time", now)
+        .gte("end_time", now)
+        .limit(1)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data as Command | null;
+    },
+  });
+};
+
 export const useCommandsQuery = () => {
   return useQuery({
     queryKey: commandsQueryKey,

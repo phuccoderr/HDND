@@ -650,14 +650,14 @@ const SkeletonRow = ({
         <div className="flex-1 space-y-2">
           <div
             className="h-4 animate-pulse rounded bg-muted"
-            style={{ width: `${60 + Math.random() * 30}%` }}
+            style={{ width: `${60 + ((index * 17) % 30)}%` }}
           />
         </div>
         {Array.from({ length: columns - 2 }).map((_, i) => (
           <div
             key={i}
             className="h-4 animate-pulse rounded bg-muted"
-            style={{ width: `${40 + Math.random() * 40}px` }}
+            style={{ width: `${40 + ((i * 13 + index * 7) % 40)}px` }}
           />
         ))}
       </div>

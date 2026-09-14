@@ -17,7 +17,7 @@ export type Schedule = {
   employee_ids?: number[];
 };
 
-export const schedulesQueryKey = "Schedules" as const;
+export const schedulesQueryKey = ["schedules"] as const;
 
 type SchedulesQueryProps = {
   start_time?: string;
@@ -26,7 +26,7 @@ type SchedulesQueryProps = {
 
 export const useSchedulesQuery = (props: SchedulesQueryProps) => {
   return useQuery({
-    queryKey: [schedulesQueryKey, props],
+    queryKey: [...schedulesQueryKey, props],
     queryFn: async () => {
       const { start_time, end_time } = props;
 
@@ -57,7 +57,7 @@ export const useSchedulesQuery = (props: SchedulesQueryProps) => {
 
 export const useScheduleQuery = (id?: string) => {
   return useQuery({
-    queryKey: [schedulesQueryKey, id],
+    queryKey: [...schedulesQueryKey, id],
     queryFn: async () => {
       const { data, error } = await supabaseClient
         .from("schedules")
@@ -97,10 +97,10 @@ export const useDeleteSchedule = () => {
       return id;
     },
     onSuccess: async (id) => {
-      queryClient.setQueryData<Schedule[]>([schedulesQueryKey], (prev = []) =>
+      queryClient.setQueryData<Schedule[]>(schedulesQueryKey, (prev = []) =>
         prev.filter((item) => item.id !== id),
       );
-      await queryClient.invalidateQueries({ queryKey: [schedulesQueryKey] });
+      await queryClient.invalidateQueries({ queryKey: schedulesQueryKey });
     },
   });
 };
@@ -122,7 +122,7 @@ export const useInsertSchedule = () => {
       return data as Schedule;
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: [schedulesQueryKey] });
+      await queryClient.invalidateQueries({ queryKey: schedulesQueryKey });
     },
   });
 };
@@ -154,7 +154,7 @@ export const useInsertSchedules = () => {
       return data as Schedule[];
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: [schedulesQueryKey] });
+      await queryClient.invalidateQueries({ queryKey: schedulesQueryKey });
     },
   });
 };
@@ -182,20 +182,20 @@ export const useUpdateSchedule = () => {
       return (data as Schedule[]) ?? [];
     },
     onSuccess: async (_data, variables) => {
-      queryClient.setQueryData<Schedule[]>([schedulesQueryKey], (prev = []) =>
+      queryClient.setQueryData<Schedule[]>(schedulesQueryKey, (prev = []) =>
         prev.map((item) =>
           item.id === variables.id
             ? { ...item, ...variables.updatedFields }
             : item,
         ),
       );
-      await queryClient.invalidateQueries({ queryKey: [schedulesQueryKey] });
+      await queryClient.invalidateQueries({ queryKey: schedulesQueryKey });
     },
   });
 };
 
 export const setSchedules = (value: SetStateAction<Schedule[]>) => {
-  queryClient.setQueryData<Schedule[]>([schedulesQueryKey], (prev = []) =>
+  queryClient.setQueryData<Schedule[]>(schedulesQueryKey, (prev = []) =>
     typeof value === "function"
       ? (value(prev) as Schedule[])
       : (value as Schedule[]),

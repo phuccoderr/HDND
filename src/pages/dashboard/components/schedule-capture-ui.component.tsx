@@ -8,13 +8,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Download, Eye } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { toast } from "sonner";
 import { toBlob } from "html-to-image";
-import { supabaseClient } from "@/apis/http.client";
-import type { Command } from "@/apis/commands.api";
+import { useCurrentCommandQuery } from "@/apis/commands.api";
+import { useCurrentDutyQuery } from "@/apis/duties.api";
 import { addDays } from "date-fns";
-import type { Duty } from "@/apis/duties.api";
 import { DateHelper } from "@/utils/date.util";
 import { useSchedulesQuery } from "@/apis/schedules.api";
 
@@ -27,8 +26,8 @@ const ScheduleCaptureUI = () => {
   const { data: clean_room } = useCleanRoomQuery(1);
 
   const [loading, setLoading] = useState(false);
-  const [command, setCommand] = useState<Command | null>();
-  const [duty, setDuty] = useState<Duty | null>();
+  const { data: command } = useCurrentCommandQuery();
+  const { data: duty } = useCurrentDutyQuery();
   const { data: schedules } = useSchedulesQuery({
     start_time: DateHelper.getDateWithString({ hours: 18 }).dateTimeUTC,
     end_time: DateHelper.getDateWithString({
@@ -112,39 +111,6 @@ const ScheduleCaptureUI = () => {
     const month = now.getMonth() + 1;
     return `${day}/${month}`;
   };
-
-  useEffect(() => {
-    const fetchCommand = async () => {
-      const { data } = await supabaseClient
-        .from("commands")
-        .select(
-          `
-            *,
-            employee:employees (*)
-          `,
-        )
-        .lte("start_time", DateHelper.formatToUTC(toDay))
-        .gte("end_time", DateHelper.formatToUTC(toDay));
-      setCommand(data?.[0]);
-    };
-
-    const fetchDuty = async () => {
-      const { data } = await supabaseClient
-        .from("duties")
-        .select(
-          `
-            *,
-            employee:employees (*)
-          `,
-        )
-        .lte("start_time", DateHelper.formatToUTC(toDay))
-        .gte("end_time", DateHelper.formatToUTC(toDay));
-      setDuty(data?.[0]);
-    };
-
-    fetchCommand();
-    fetchDuty();
-  }, []);
 
   return (
     <Dialog>

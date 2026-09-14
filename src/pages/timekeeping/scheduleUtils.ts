@@ -84,8 +84,23 @@ export function buildMonthWeeks(
   const daysInMonth = new Date(Date.UTC(year, month1to12, 0)).getUTCDate();
   const lastOfMonth = `${year}-${pad2(month1to12)}-${pad2(daysInMonth)}`;
 
-  const timedEvents = schedules?.filter((e) => !e.is_all_day);
-  const allDayEvents = schedules?.filter((e) => e.is_all_day);
+  const timedEventsBySlot = new Map<string, Schedule[]>();
+  const allDayEventsByDate = new Map<string, Schedule[]>();
+
+  for (const event of schedules ?? []) {
+    const dateKey = dateKeyOf(event.start_datetime);
+    if (event.is_all_day) {
+      const events = allDayEventsByDate.get(dateKey) ?? [];
+      events.push(event);
+      allDayEventsByDate.set(dateKey, events);
+      continue;
+    }
+
+    const key = `${dateKey}|${hourOf(event.start_datetime)}`;
+    const events = timedEventsBySlot.get(key) ?? [];
+    events.push(event);
+    timedEventsBySlot.set(key, events);
+  }
 
   const weeks: ScheduleWeek[] = [];
   let cursor = mondayOf(firstOfMonth);
@@ -97,12 +112,8 @@ export function buildMonthWeeks(
     const rows: ScheduleRow[] = SLOT_ORDER.map((startHour) => {
       const cellsByDate: Record<string, Schedule[]> = {};
       for (const dateKey of dates) {
-        cellsByDate[dateKey] = timedEvents.filter((e) => {
-          return (
-            dateKeyOf(e.start_datetime) === dateKey &&
-            hourOf(e.start_datetime) === startHour
-          );
-        });
+        cellsByDate[dateKey] =
+          timedEventsBySlot.get(`${dateKey}|${startHour}`) ?? [];
       }
       return {
         slotStartHour: startHour,
@@ -113,9 +124,7 @@ export function buildMonthWeeks(
 
     const allDayNotices: Record<string, Schedule[]> = {};
     for (const dateKey of dates) {
-      allDayNotices[dateKey] = allDayEvents.filter(
-        (e) => dateKeyOf(e.start_datetime) === dateKey,
-      );
+      allDayNotices[dateKey] = allDayEventsByDate.get(dateKey) ?? [];
     }
 
     weeks.push({ weekIndex, dates, rows, allDayNotices });

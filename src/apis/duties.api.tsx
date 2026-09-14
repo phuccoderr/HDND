@@ -13,6 +13,25 @@ export type Duty = {
 
 const dutiesQueryKey = ["duties"] as const;
 
+export const useCurrentDutyQuery = () => {
+  return useQuery({
+    queryKey: [...dutiesQueryKey, "current"],
+    queryFn: async (): Promise<Duty | null> => {
+      const now = new Date().toISOString();
+      const { data, error } = await supabaseClient
+        .from("duties")
+        .select("*, employee:employees (*)")
+        .lte("start_time", now)
+        .gte("end_time", now)
+        .limit(1)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data as Duty | null;
+    },
+  });
+};
+
 export const useDutiesQuery = () => {
   return useQuery({
     queryKey: dutiesQueryKey,

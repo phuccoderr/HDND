@@ -174,7 +174,7 @@ const UserPage = () => {
         ),
       },
     ],
-    [employees],
+    [],
   );
 
   const handleSort = (columnId: string, direction: SortDirection) => {

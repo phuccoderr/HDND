@@ -127,4 +127,4 @@ const SearchableSelect = <T,>({
   );
 };
 
-export default SearchableSelect;
+export default React.memo(SearchableSelect) as typeof SearchableSelect;

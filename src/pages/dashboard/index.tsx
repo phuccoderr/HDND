@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import viLocale from "@fullcalendar/core/locales/vi";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -43,14 +43,27 @@ import { Label } from "@/components/ui/label";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getColorMap } from "@/constants/colors-soft.const";
 
+const scheduleMapEvents = (schedules: Schedule[]): EventInput[] =>
+  schedules.map((schedule) => ({
+    id: String(schedule.id),
+    title: schedule.title,
+    start: schedule.start_datetime.substring(0, 19).replace(" ", "T"),
+    end: schedule.end_datetime.substring(0, 19).replace(" ", "T"),
+    allDay: schedule.is_all_day,
+    extendedProps: {
+      users: schedule.employees?.map((emp) => emp.full_name),
+      color: schedule.color,
+    },
+  }));
+
 const DashboardPage = () => {
   const { data: schedules, refetch: refetchSchedules } = useSchedulesQuery({});
   const { mutateAsync: mutateUpdateSchedule } = useUpdateSchedule();
   const containerRef = useRef<HTMLDivElement>(null);
   const calendarRef = useRef<FullCalendar>(null);
   const [calendarTitle, setCalendarTitle] = useState<string>("");
-  const [events, setEvents] = useState<EventInput[]>([]);
   const isMobile = useIsMobile();
+  const events = useMemo(() => scheduleMapEvents(schedules ?? []), [schedules]);
 
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(
     null,
@@ -63,27 +76,6 @@ const DashboardPage = () => {
     setSelectedSchedule(found);
     setIsUpdateOpen(true);
   };
-
-  useEffect(() => {
-    if (schedules && schedules.length > 0) {
-      setEvents(scheduleMapEvents(schedules));
-    } else {
-      setEvents([]);
-    }
-  }, [schedules]);
-
-  const scheduleMapEvents = (schedules: Schedule[]): EventInput[] =>
-    schedules.map((schedule) => ({
-      id: String(schedule.id),
-      title: schedule.title,
-      start: schedule.start_datetime.substring(0, 19).replace(" ", "T"),
-      end: schedule.end_datetime.substring(0, 19).replace(" ", "T"),
-      allDay: schedule.is_all_day,
-      extendedProps: {
-        users: schedule.employees?.map((emp) => emp.full_name),
-        color: schedule.color,
-      },
-    }));
 
   const persistEventTime = async (
     event: EventImpl,
@@ -98,13 +90,6 @@ const DashboardPage = () => {
         updatedFields: payload,
       });
 
-      setEvents((prev) =>
-        prev.map((evt) =>
-          evt.id === event.id
-            ? { ...evt, start: event.startStr, end: event.endStr }
-            : evt,
-        ),
-      );
       toast.success("Cập nhật thời gian thành công");
     } catch (error) {
       toast.error("Cập nhật thời gian thất bại", {

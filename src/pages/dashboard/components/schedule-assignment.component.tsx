@@ -1,11 +1,16 @@
 import {
   useInsertCommand,
   useUpdateCommand,
+  useCurrentCommandQuery,
   type Command,
 } from "@/apis/commands.api";
-import { type Duty, useInsertDuty, useUpdateDuty } from "@/apis/duties.api";
+import {
+  type Duty,
+  useCurrentDutyQuery,
+  useInsertDuty,
+  useUpdateDuty,
+} from "@/apis/duties.api";
 import { useEmployeesQuery } from "@/apis/employee.api";
-import { supabaseClient } from "@/apis/http.client";
 import { Button } from "@/components/ui/button";
 import { AnimatedCalendar } from "@/components/ui/calender";
 import {
@@ -46,60 +51,30 @@ const ScheduleAssignment = () => {
     to: Date | undefined;
   }>();
 
-  const toDay = new Date().toISOString();
+  const { data: currentCommand } = useCurrentCommandQuery();
+  const { data: currentDuty } = useCurrentDutyQuery();
 
   useEffect(() => {
-    const fetchCommand = async () => {
-      const { data, error } = await supabaseClient
-        .from("commands")
-        .select("*")
-        .lte("start_time", toDay)
-        .gte("end_time", toDay);
+    if (!currentCommand) return;
+    setEmpCommandEditing(currentCommand);
+    setEmpCommandId(String(currentCommand.employee_id));
+    setDateRangeCommand({
+      from: new Date(
+        currentCommand.start_time.substring(0, 19).replace(" ", "T"),
+      ),
+      to: new Date(currentCommand.end_time.substring(0, 19).replace(" ", "T")),
+    });
+  }, [currentCommand]);
 
-      if (error) {
-        toast.error("Lỗi không tìm thấy chỉ huy");
-        return;
-      }
-      const commands = data as Command[];
-      if (commands && commands.length > 0) {
-        const command = commands[0];
-
-        setEmpCommandEditing(command);
-        setEmpCommandId(String(command.employee_id));
-        setDateRangeCommand({
-          from: new Date(command.start_time.substring(0, 19).replace(" ", "T")),
-          to: new Date(command.end_time.substring(0, 19).replace(" ", "T")),
-        });
-      }
-    };
-
-    const fetchDuty = async () => {
-      const { data, error } = await supabaseClient
-        .from("duties")
-        .select("*")
-        .lte("start_time", toDay)
-        .gte("end_time", toDay);
-
-      if (error) {
-        toast.error("Lỗi không tìm thấy trực ban");
-        return;
-      }
-      const duties = data as Duty[];
-      if (duties && duties.length > 0) {
-        const duty = duties[0];
-
-        setEmpDutyEditing(duty);
-        setEmpDutyId(String(duty.employee_id));
-        setDateRangeDuty({
-          from: new Date(duty.start_time.substring(0, 19).replace(" ", "T")),
-          to: new Date(duty.end_time.substring(0, 19).replace(" ", "T")),
-        });
-      }
-    };
-
-    fetchCommand();
-    fetchDuty();
-  }, []);
+  useEffect(() => {
+    if (!currentDuty) return;
+    setEmpDutyEditing(currentDuty);
+    setEmpDutyId(String(currentDuty.employee_id));
+    setDateRangeDuty({
+      from: new Date(currentDuty.start_time.substring(0, 19).replace(" ", "T")),
+      to: new Date(currentDuty.end_time.substring(0, 19).replace(" ", "T")),
+    });
+  }, [currentDuty]);
 
   const { mutateAsync: mutateInsertCommand } = useInsertCommand();
   const { mutateAsync: mutateUpdateCommand } = useUpdateCommand();

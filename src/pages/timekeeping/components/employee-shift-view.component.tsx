@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +20,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export function EmployeeShiftView({
+export const EmployeeShiftView = memo(function EmployeeShiftView({
   schedules,
   employees,
   month,
@@ -140,4 +140,4 @@ export function EmployeeShiftView({
       </CardContent>
     </Card>
   );
-}
+});

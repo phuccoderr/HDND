@@ -1,5 +1,4 @@
-import { type Schedule } from "@/apis/schedules.api";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   buildMonthWeeks,
   formatVnDate,
@@ -12,9 +11,7 @@ import { Label } from "@/components/ui/label";
 import { getColorMap } from "@/constants/colors-soft.const";
 import { useEmployeesQuery, type Employee } from "@/apis/employee.api";
 import { Button } from "@/components/ui/button";
-import { exportScheduleToExcel } from "./components/export-schedule-excel";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { exportEmployeeScheduleToWord } from "./components/export-emp-schedule-word.component";
 import { EmployeeShiftView } from "./components/employee-shift-view.component";
 import SearchableSelect from "@/components/searchable-select.component";
 import { FaRegFileWord, FaRegFileExcel } from "react-icons/fa";
@@ -31,11 +28,7 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { exportTimeKeepingExcel } from "./components/export-timekeeping-excel.component";
-import { exportMoneyExcel } from "./components/export-money-excel";
 import { useTimekeepingStore } from "@/stores/timekeeping.store";
-
-const STORAGE_KEY = "schedules_data";
 
 const TimekeepingPage = () => {
   const { data: employeesData } = useEmployeesQuery();
@@ -48,24 +41,6 @@ const TimekeepingPage = () => {
     () => buildMonthWeeks(schedules, currentYear, currentMonth),
     [schedules, currentYear, currentMonth],
   );
-
-  // Load schedules from localStorage on mount and when month changes
-  useEffect(() => {
-    const loadSchedulesFromStorage = () => {
-      try {
-        const storedData = localStorage.getItem(STORAGE_KEY);
-        if (storedData) {
-          const allSchedules = JSON.parse(storedData) as Schedule[];
-          setSchedules(allSchedules);
-        }
-      } catch (error) {
-        console.error("Failed to load schedules from localStorage:", error);
-        setSchedules([]);
-      }
-    };
-
-    loadSchedulesFromStorage();
-  }, []);
 
   const allEmployees: Employee[] = employeesData ?? [];
 
@@ -98,10 +73,14 @@ const TimekeepingPage = () => {
   };
 
   const handleExportExcel = async () => {
+    const { exportScheduleToExcel } =
+      await import("./components/export-schedule-excel");
     await exportScheduleToExcel(weeks, currentMonth, currentYear);
   };
 
   const handleExportTimekeepingExcel = async () => {
+    const { exportTimeKeepingExcel } =
+      await import("./components/export-timekeeping-excel.component");
     await exportTimeKeepingExcel(
       employeesData ?? [],
       schedules,
@@ -111,6 +90,8 @@ const TimekeepingPage = () => {
   };
 
   const handleExportMoneyExcel = async () => {
+    const { exportMoneyExcel } =
+      await import("./components/export-money-excel");
     await exportMoneyExcel(
       employeesData ?? [],
       schedules,
@@ -120,6 +101,8 @@ const TimekeepingPage = () => {
   };
 
   const handleExportEmployeeWord = async (employee: Employee) => {
+    const { exportEmployeeScheduleToWord } =
+      await import("./components/export-emp-schedule-word.component");
     await exportEmployeeScheduleToWord(
       schedules,
       employee,

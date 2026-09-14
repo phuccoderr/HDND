@@ -3,56 +3,20 @@ import { Menu, Moon, Sun } from "lucide-react";
 import { useTheme } from "./theme-provider.template";
 import { useSidebar } from "@/components/animate-ui/components/radix/sidebar";
 import { useStoreButtonHeader } from "@/stores/work-space.store";
-import { useEffect, useState } from "react";
-import { supabaseClient } from "@/apis/http.client";
-import type { Command } from "@/apis/commands.api";
-import type { Duty } from "@/apis/duties.api";
+import { useCurrentCommandQuery } from "@/apis/commands.api";
+import { useCurrentDutyQuery } from "@/apis/duties.api";
 
 const Header = () => {
   const { toggleSidebar } = useSidebar();
   const { theme, setTheme } = useTheme();
   const { open, handleClick } = useStoreButtonHeader();
-  const [command, setCommand] = useState<Command | null>();
-  const [duty, setDuty] = useState<Duty | null>();
-  const toDay = new Date().toISOString();
+  const { data: command } = useCurrentCommandQuery();
+  const { data: duty } = useCurrentDutyQuery();
 
   const toggleTheme = () => {
     // Nếu đang là dark thì đổi thành light, và ngược lại
     setTheme(theme === "dark" ? "light" : "dark");
   };
-
-  useEffect(() => {
-    const fetchCommand = async () => {
-      const { data } = await supabaseClient
-        .from("commands")
-        .select(
-          `
-        *,
-        employee:employees (*)
-      `,
-        )
-        .lte("start_time", toDay)
-        .gte("end_time", toDay);
-      setCommand(data?.[0]);
-    };
-
-    const fetchDuty = async () => {
-      const { data } = await supabaseClient
-        .from("duties")
-        .select(
-          `
-        *,
-        employee:employees (*)
-      `,
-        )
-        .lte("start_time", toDay)
-        .gte("end_time", toDay);
-      setDuty(data?.[0]);
-    };
-
-    fetchCommand();
-    fetchDuty();
-  }, []);
 
   return (
     <div className="sticky top-0 z-20 border-b  bg-background/70 backdrop-blur-md ">
