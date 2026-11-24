@@ -6,8 +6,6 @@ import {
   hourOf,
 } from "../scheduleUtils";
 import {
-  Document,
-  Packer,
   Table,
   TableRow,
   TableCell,
@@ -18,14 +16,13 @@ import {
   VerticalMergeType,
   AlignmentType,
   BorderStyle,
-  PageOrientation,
   TableLayoutType,
   HeightRule,
   TabStopType,
 } from "docx";
-import { saveAs } from "file-saver";
 import type { Employee } from "@/apis/employee.api";
 import { DocxHelper } from "@/utils/docx.util";
+import { EMPLOYEE_RANK_LABELS } from "@/pages/users/components/employee-form.schema";
 
 const CELL_BORDER = { style: BorderStyle.SINGLE, size: 4, color: "000000" };
 const ALL_BORDERS = {
@@ -60,7 +57,7 @@ export async function exportEmployeeScheduleToWord(
     width: { size: 0, type: WidthType.DXA },
     alignment: AlignmentType.CENTER,
     layout: TableLayoutType.FIXED,
-    columnWidths: [5651, 8749],
+    columnWidths: [DocxHelper.cmToDxa(9.97), DocxHelper.cmToDxa(15.43)],
     borders: DocxHelper.NO_BORDERS,
     margins: { left: 10, right: 10 },
     rows: [
@@ -185,11 +182,13 @@ export async function exportEmployeeScheduleToWord(
     run: { bold: true, size: DocxHelper.getSize(14) },
     children: [
       new TextRun({
-        text: " ".repeat(7) + "STT 1: ",
+        text: " ".repeat(7) + `STT ${employee.numerical_order}: `,
         size: DocxHelper.getSize(14),
       }),
       new TextRun({
-        text: "Hạ sĩ Đào Quốc Trung",
+        text: [EMPLOYEE_RANK_LABELS[employee.rank], employee.full_name]
+          .filter(Boolean)
+          .join(" "),
         size: DocxHelper.getSize(14),
       }),
     ],
@@ -442,59 +441,22 @@ export async function exportEmployeeScheduleToWord(
       ],
     });
 
-  const doc = new Document({
-    styles: {
-      default: {
-        document: {
-          run: {
-            font: "Times New Roman",
-            language: {
-              value: "en-US",
-              eastAsia: "en-US",
-              bidirectional: "ar-SA",
-            },
-          },
-        },
-      },
-    },
-    sections: [
-      {
-        properties: {
-          page: {
-            // A4 ngang: truyền kích thước dọc + orientation LANDSCAPE (docx tự hoán đổi)
-            size: {
-              width: 11906,
-              height: 16838,
-              orientation: PageOrientation.LANDSCAPE,
-            },
-            margin: {
-              top: 1440,
-              right: 1440,
-              bottom: 1440,
-              left: 1440,
-              header: 708,
-              footer: 708,
-              gutter: 0,
-            },
-          },
-        },
-        children: [
-          headerTable, // 1. Header (Quốc hiệu / Đơn vị)
-          title, // 2. Tiêu đề BÁO CÁO
-          sttLine, // 3. Bảng dữ liệu chính
-          dutyTable,
-          new Paragraph({ spacing: { before: 240 }, children: [] }),
-          signTable,
-          centerBold("XÁC NHẬN CỦA LÃNH ĐẠO PHÒNG"),
-          centerBold("PHÓ TRƯỞNG PHÒNG"),
-        ],
-      },
+  const doc = DocxHelper.create(
+    [
+      headerTable, // 1. Header (Quốc hiệu / Đơn vị)
+      title, // 2. Tiêu đề BÁO CÁO
+      sttLine, // 3. Bảng dữ liệu chính
+      dutyTable,
+      new Paragraph({ spacing: { before: 240 }, children: [] }),
+      signTable,
+      centerBold("XÁC NHẬN CỦA LÃNH ĐẠO PHÒNG"),
+      centerBold("PHÓ TRƯỞNG PHÒNG"),
     ],
-  });
+    "landscape",
+  );
 
-  const blob = await Packer.toBlob(doc);
-  saveAs(
-    blob,
+  DocxHelper.save(
+    doc,
     `lich-truc-${employee.full_name.replace(/\s+/g, "-")}-thang-${month}-${year}.docx`,
   );
 }

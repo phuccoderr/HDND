@@ -36,6 +36,14 @@ const EmployeeFormFields = ({ control }: Props) => {
   return (
     <FieldGroup>
       <InputField
+        type="number"
+        label="Số thự tự"
+        name="numerical_order"
+        htmlFor="event-numerical_order"
+        control={control}
+        placeholder="Nhập đầy đủ số thứ tự"
+      />
+      <InputField
         label="Họ và tên"
         name="full_name"
         htmlFor="event-full_name"

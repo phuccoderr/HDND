@@ -4,6 +4,7 @@ import { queryClient } from "@/lib/query-client";
 
 export type Employee = {
   id: number;
+  numerical_order: number;
   full_name: string;
   type: "EMPLOYEE" | "COMMAND" | "DUTY";
   room: "ROOM1" | "ROOM3" | null;

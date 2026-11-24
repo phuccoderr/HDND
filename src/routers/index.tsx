@@ -5,6 +5,8 @@ import Layout from "@/templates/layout.template";
 const DashboardPage = lazy(() => import("@/pages/dashboard"));
 const UserPage = lazy(() => import("@/pages/users"));
 const TimekeepingPage = lazy(() => import("@/pages/timekeeping"));
+const LichKhttsPage = lazy(() => import("@/pages/khtts/lich-khtts"));
+const KhttsPage = lazy(() => import("@/pages/khtts/khtts"));
 
 const RouteFallback = () => (
   <div className="flex min-h-32 items-center justify-center text-sm text-muted-foreground">
@@ -46,6 +48,22 @@ const router = createBrowserRouter([
           </LazyPage>
         ),
         path: "/timekeeping",
+      },
+      {
+        element: (
+          <LazyPage>
+            <LichKhttsPage />
+          </LazyPage>
+        ),
+        path: "/lich-khtts",
+      },
+      {
+        element: (
+          <LazyPage>
+            <KhttsPage />
+          </LazyPage>
+        ),
+        path: "/khtts",
       },
     ],
   },

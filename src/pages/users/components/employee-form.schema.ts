@@ -21,6 +21,7 @@ export const EMPLOYEE_RANK_LABELS: Record<string, string> = {
 };
 
 export const employeeFormSchema = z.object({
+  numerical_order: z.number().min(1, "Thứ tự phải lớn hơn hoặc bằng 1"),
   full_name: z.string().trim().min(1, "Vui lòng nhập họ và tên"),
   type: z.enum(["EMPLOYEE", "COMMAND", "DUTY"], {
     message: "Vui lòng chọn loại nhân viên",
@@ -64,6 +65,7 @@ export const employeeRooms = [
 export type EmployeeFormValues = z.infer<typeof employeeFormSchema>;
 
 export const defaultEmployeeFormValues: EmployeeFormValues = {
+  numerical_order: 0,
   full_name: "",
   type: "EMPLOYEE",
   room: "ROOM1",

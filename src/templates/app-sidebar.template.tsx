@@ -21,6 +21,7 @@ import {
 import {
   AlarmClockCheck,
   CalendarSync,
+  ClipboardList,
   ChevronRight,
   User,
   type LucideIcon,
@@ -88,6 +89,23 @@ export const sidebarNavItems: SidebarGroupConfig[] = [
         url: "/timekeeping",
         icon: AlarmClockCheck,
         tooltip: "Chấm công định lượng",
+      },
+    ],
+  },
+  {
+    title: "Kế hoạch TTKS",
+    items: [
+      {
+        title: "Lịch tuần tra",
+        url: "/lich-khtts",
+        icon: CalendarSync,
+        tooltip: "Lịch tuần tra, kiểm soát",
+      },
+      {
+        title: "Kế hoạch tuần tra",
+        url: "/khtts",
+        icon: ClipboardList,
+        tooltip: "Kế hoạch tuần tra, kiểm soát",
       },
     ],
   },
